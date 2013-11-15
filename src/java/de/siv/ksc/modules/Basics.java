@@ -28,4 +28,14 @@ public class Basics {
         in.close(); 
         return props;
     }
+    
+    /**
+     *
+     * @param desc
+     * @return
+     */
+    static public String encodeHtml(String desc) {
+        String replace = desc.replace("\\303\\234", "&Uuml;").replace("\\303\\274", "&uuml;");
+        return replace;
+    }
 }

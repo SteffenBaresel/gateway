@@ -1,20 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <!--
+            Session
+    -->
     <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
+        <session-timeout>600</session-timeout>
     </session-config>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Secure Area</web-resource-name>
+            <url-pattern>/*</url-pattern>
+            <http-method>DELETE</http-method>
+            <http-method>HEAD</http-method>
+            <http-method>PUT</http-method>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>GETLIB</http-method>
+            <http-method>COPY</http-method>
+            <http-method>MOVE</http-method>
+            <http-method>PROPFIND</http-method>
+            <http-method>MKCOL</http-method>
+            <http-method>PROPPATCH</http-method>
+            <http-method>LOCK</http-method>
+            <http-method>UNLOCK</http-method>
+            <http-method>VERSION-CONTROL</http-method>
+            <http-method>CHECKIN</http-method>
+            <http-method>CHECKOUT</http-method>
+            <http-method>UNCHECKOUT</http-method>
+            <http-method>REPORT</http-method>
+            <http-method>UPDATE</http-method>
+            <http-method>CANCELUPLOAD</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>Protected</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <security-role>
+        <role-name>Protected</role-name>
+    </security-role>
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>LDAP</realm-name>
+    </login-config>
+    <!--
+            Servlets & Mapping 
+    -->
     <servlet>
-        <servlet-name>profiles</servlet-name>
-        <servlet-class>de.siv.ksc.gateway.Profiles</servlet-class>
+        <servlet-name>GetUserConfig</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetUserConfig</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>profiles</servlet-name>
-        <url-pattern>/profiles</url-pattern>
+        <servlet-name>GetUserConfig</servlet-name>
+        <url-pattern>/exec/GetUserConfig</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>SendHtmlMail</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.SendHtmlMail</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SendHtmlMail</servlet-name>
+        <url-pattern>/exec/SendHtmlMail</url-pattern>
+    </servlet-mapping>
+    <!--
+            Welcome File & Datasource
+    -->
     <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
     <resource-ref>
         <description>Repository</description>
