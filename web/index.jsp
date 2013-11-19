@@ -12,9 +12,9 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <!--GATEWAY_ENGINE:2.3.131115-->
+        <!--GATEWAY_ENGINE:2.3.131119-->
         <center>
-            <h2>kVASy&reg; System Control - Gateway Engine 2.3.131115</h2>
+            <h2>kVASy&reg; System Control - Gateway Engine 2.3.131119</h2>
             <p>
                 <font size=2>Entwicklungslinie 2 Update 3 - Steffen Baresel</font>
             </p>
@@ -41,9 +41,9 @@
         </div>
         <hr>
         <br></br>
-        <!--GATEWAY_VERSION:2.3.131115-->
+        <!--GATEWAY_VERSION:2.3.131119-->
         Modul: <i><b>Repository</b></i><br>
-        Version: <i><b>2.3.131115</b></i><br>
+        Version: <i><b>2.3.131119</b></i><br>
         Comments: -
         <br></br>
         Format: <i><b>JSON</b></i><br>
@@ -51,6 +51,8 @@
         <ul>
             <li><b>GetUserConfig</b> - List User Configuration From Repository URL: <a href="/gateway/exec/GetUserConfig">/gateway/exec/GetUserConfig</a></li>
             <li><b>SendHtmlMail</b> - Send Mail from Web, required BASE64 values for parameter URL: <a href="/gateway/exec/SendHtmlMail?to=&cc=&from=&subject=&text=">/gateway/exec/SendHtmlMail?to=&cc=&from=&subject=&text=</a></li>
+            <li><b>AddDashboardLink</b> - Add Dashboard Link, required BASE64 values for parameter URL: <a href="/gateway/exec/AddDashboardLink?title=&desc=&target=">/gateway/exec/AddDashboardLink?title=&desc=&target=</a></li>
+            <li><b>UpdateUserMail</b> - Update User Mailaddress, required BASE64 values for parameter URL: <a href="/gateway/exec/UpdateUserMail?mail=">/gateway/exec/UpdateUserMail?mail=</a></li>
         </ul>
         </font>
         <br></br>

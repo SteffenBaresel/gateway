@@ -61,6 +61,22 @@
         <servlet-name>SendHtmlMail</servlet-name>
         <url-pattern>/exec/SendHtmlMail</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>AddDashboardLink</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.AddDashboardLink</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddDashboardLink</servlet-name>
+        <url-pattern>/exec/AddDashboardLink</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateUserMail</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.UpdateUserMail</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateUserMail</servlet-name>
+        <url-pattern>/exec/UpdateUserMail</url-pattern>
+    </servlet-mapping>
     <!--
             Welcome File & Datasource
     -->

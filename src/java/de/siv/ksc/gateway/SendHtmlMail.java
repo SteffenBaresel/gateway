@@ -9,11 +9,13 @@ import de.siv.ksc.modules.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -41,9 +43,24 @@ public class SendHtmlMail extends HttpServlet {
         
         String tocc = props.getProperty("MAIL.FXCC") + "," + cc;
         boolean ctsSuccess = true;
+        String fulltext = null;
+        
+        if (props.getProperty("MAIL.ATTN").length() > 0) {
+            fulltext = text + "" + Basics.readFile(props.getProperty("MAIL.ATTN")); 
+        } else {
+            fulltext = text;
+        }
         
         try {            
-            MailHtml.send(to,tocc,from,subject,text);
+            try {
+                MailHtml.send(to,tocc,from,subject,fulltext);
+            } catch (NamingException ex) {
+                ctsSuccess = false;
+                Logger.getLogger(SendHtmlMail.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                ctsSuccess = false;
+                Logger.getLogger(SendHtmlMail.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } catch (NoSuchProviderException ex) {
             ctsSuccess = false;
             Logger.getLogger(SendHtmlMail.class.getName()).log(Level.SEVERE, null, ex);
@@ -53,9 +70,9 @@ public class SendHtmlMail extends HttpServlet {
         }
         
         if (ctsSuccess) {
-            out.println("{\"SEND\":\"1\",\"TO\":\"" + to + "\",\"CC\":\"" + tocc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\",\"TEXT\":\"" + text + "\"}");
+            out.println("{\"SEND\":\"1\",\"TO\":\"" + to + "\",\"CC\":\"" + tocc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
         } else {
-            out.println("{\"SEND\":\"0\",\"TO\":\"" + to + "\",\"CC\":\"" + tocc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\",\"TEXT\":\"" + text + "\"}");
+            out.println("{\"SEND\":\"0\",\"TO\":\"" + to + "\",\"CC\":\"" + tocc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
         }
     }
 
