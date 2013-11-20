@@ -95,7 +95,7 @@ public class Functions {
         /*
          * Update Mail Konfiguration
          */
-        st.execute("UPDATE profiles_user SET umai = encode('" + Mail + "','base64') where usnm = encode('" + Uid + "','base64')");
+        st.execute("UPDATE profiles_user SET umai = '" + Mail + "' where usnm = encode('" + Uid + "','base64')");
         /*
          * Close Connection
          */
