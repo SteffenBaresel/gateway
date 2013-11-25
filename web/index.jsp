@@ -12,9 +12,9 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <!--GATEWAY_ENGINE:2.3.131119-->
+        <!--GATEWAY_ENGINE:2.3.131125-->
         <center>
-            <h2>kVASy&reg; System Control - Gateway Engine 2.3.131119</h2>
+            <h2>kVASy&reg; System Control - Gateway Engine 2.3.131125</h2>
             <p>
                 <font size=2>Entwicklungslinie 2 Update 3 - Steffen Baresel</font>
             </p>
@@ -41,9 +41,9 @@
         </div>
         <hr>
         <br></br>
-        <!--GATEWAY_VERSION:2.3.131119-->
+        <!--GATEWAY_VERSION:2.3.131125-->
         Modul: <i><b>Repository</b></i><br>
-        Version: <i><b>2.3.131119</b></i><br>
+        Version: <i><b>2.3.131125</b></i><br>
         Comments: -
         <br></br>
         Format: <i><b>JSON</b></i><br>
@@ -53,6 +53,19 @@
             <li><b>SendHtmlMail</b> - Send Mail from Web, required BASE64 values for parameter URL: <a href="/gateway/exec/SendHtmlMail?to=&cc=&from=&subject=&text=">/gateway/exec/SendHtmlMail?to=&cc=&from=&subject=&text=</a></li>
             <li><b>AddDashboardLink</b> - Add Dashboard Link, required BASE64 values for parameter URL: <a href="/gateway/exec/AddDashboardLink?title=&desc=&target=">/gateway/exec/AddDashboardLink?title=&desc=&target=</a></li>
             <li><b>UpdateUserMail</b> - Update User Mailaddress, required BASE64 values for parameter URL: <a href="/gateway/exec/UpdateUserMail?mail=">/gateway/exec/UpdateUserMail?mail=</a></li>
+            <li><b>FormPicture</b> - Formular to upload picture URL: <a href="/gateway/exec/FormPicture">/gateway/exec/FormPicture</a></li>
+            <li><b>UploadPicture</b> - Upload picture to database URL: <a href="/gateway/exec/UploadPicture">/gateway/exec/UploadPicture</a></li>
+            <li><b>UserPicture</b> - Display User picture from database URL: <a href="/gateway/exec/UserPicture">/gateway/exec/UserPicture</a></li>
+            <li><b>UserManagementOverview</b> - List User, Groups, Roles and Privileges URL: <a href="/gateway/exec/UserManagementOverview">/gateway/exec/UserManagementOverview</a></li>
+            <li><b>AddEntry</b> - Add User, Groups, Roles and Privileges, required BASE64 values for parameter URL: <a href="/gateway/exec/AddEntry?mod=&id=&desc">/gateway/exec/AddEntry?mod=&id=&desc=</a></li>
+            <li><b>DeleteEntry</b> - Delete User, Groups, Roles and Privileges, required BASE64 values for parameter URL: <a href="/gateway/exec/DeleteEntry?mod=&id=">/gateway/exec/DeleteEntry?mod=&id=</a></li>
+            <li><b>ActivateUser</b> - Activate/deactivate User, required BASE64 values for parameter URL: <a href="/gateway/exec/ActivateUser?mod=&id=">/gateway/exec/ActivateUser?mod=&id=</a></li>
+            <li><b>PermissionRolePrivilege</b> - List Role - Privilege Mapping URL: <a href="/gateway/exec/PermissionRolePrivilege">/gateway/exec/PermissionRolePrivilege</a></li>
+            <li><b>UpdateRolePriv</b> - Update Role with Privilege, required BASE64 values for parameter URL: <a href="/gateway/exec/UpdateRolePriv?rlid=&prid=">/gateway/exec/UpdateRolePriv?lrid=&prid=</a></li>
+            <li><b>PermissionGroupRole</b> - List Group - Role Mapping URL: <a href="/gateway/exec/PermissionGroupRole">/gateway/exec/PermissionGroupRole</a></li>
+            <li><b>UpdateGroupRole</b> - Update Group with Role, required BASE64 values for parameter URL: <a href="/gateway/exec/UpdateGroupRole?grid=&rlid=">/gateway/exec/UpdateGroupRole?grid=&rlid=</a></li>
+            <li><b>PermissionUserGroup</b> - List User - Group Mapping URL: <a href="/gateway/exec/PermissionUserGroup">/gateway/exec/PermissionUserGroup</a></li>
+            <li><b>UpdateUserGroup</b> - Update User with Group, required BASE64 values for parameter URL: <a href="/gateway/exec/UpdateUserGroup?uuid=&grid=">/gateway/exec/UpdateUserGroup?uuid=&grid=</a></li>
         </ul>
         </font>
         <br></br>

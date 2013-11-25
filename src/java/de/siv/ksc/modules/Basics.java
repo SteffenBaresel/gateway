@@ -10,7 +10,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  *
@@ -51,5 +54,14 @@ public class Basics {
         content = new String(chars);
         reader.close();
         return content;
+    }
+    
+    static public String ConvertUtime(Long utime) throws FileNotFoundException, IOException
+    {
+        Date date = new Date(utime*1000L); // *1000 is to convert minutes to milliseconds
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // the format of your date
+        String formattedDate = sdf.format(date);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT-1"));
+        return formattedDate;
     }
 }

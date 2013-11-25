@@ -23,11 +23,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class AddDashboardLink extends HttpServlet {
+public class ActivateUser extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String title, String desc, String target)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String mod, String id)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -38,35 +38,34 @@ public class AddDashboardLink extends HttpServlet {
         response.addHeader("Access-Control-Allow-Methods", "*");
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
-        boolean ctsSuccess = true;
+        String ctsSuccess = "0";
         
         try {
-            Functions.AddDashboardLink( uid, title, desc, target);
+            ctsSuccess = Functions.ActivateUser( mod, id);
         } catch (NamingException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(ActivateUser.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(ActivateUser.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (ctsSuccess) {
-            out.println("{\"ADD\":\"1\"}");
+        
+        if ("1".equals(ctsSuccess)) {
+            out.println("{\"EXEC\":\"1\"}");
         } else {
-            out.println("{\"ADD\":\"0\"}");
+            out.println("{\"EXEC\":\"0\"}");
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
-        processRequest(request, response, uid, request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        processRequest(request, response, request.getParameter("mod"), request.getParameter("id"));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
-        processRequest(request, response, uid, request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        //
     }
 }

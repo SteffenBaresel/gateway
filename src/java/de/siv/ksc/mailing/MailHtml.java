@@ -9,6 +9,7 @@ import de.siv.ksc.modules.Basics;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -44,12 +45,9 @@ public class MailHtml {
                 
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository");
-        Connection cn  = null; 
-        Statement  st  = null; 
-        ResultSet  rs  = null;
-        cn = ds.getConnection(); 
-        st = cn.createStatement(); 
-        rs = st.executeQuery("SELECT decode(key,'base64'),decode(val,'base64') FROM config_gateway WHERE MOD like encode('MAILAPI','base64') ORDER BY 1 ASC");
+        Connection cn  = ds.getConnection(); 
+        PreparedStatement ps = cn.prepareStatement("SELECT decode(key,'base64'),decode(val,'base64') FROM config_gateway WHERE MOD like encode('MAILAPI','base64') ORDER BY 1 ASC");
+        ResultSet rs = ps.executeQuery();
         while ( rs.next() ) { 
             if ("HOST".equals(rs.getString( 1 ))) {
                 host = rs.getString( 2 );

@@ -4,6 +4,7 @@
  */
 package de.siv.ksc.gateway;
 
+import de.siv.ksc.modules.Base64Coder;
 import de.siv.ksc.modules.Basics;
 import de.siv.ksc.modules.Functions;
 import java.io.FileNotFoundException;
@@ -23,11 +24,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class AddDashboardLink extends HttpServlet {
+public class UserManagementOverview extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String title, String desc, String target)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -38,35 +39,27 @@ public class AddDashboardLink extends HttpServlet {
         response.addHeader("Access-Control-Allow-Methods", "*");
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
-        boolean ctsSuccess = true;
         
         try {
-            Functions.AddDashboardLink( uid, title, desc, target);
+            out.println( Functions.UserManagementOverview() );
         } catch (NamingException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            out.println("{\"ERROR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( ex.toString() ) ) + "\"}");
+            Logger.getLogger(UserManagementOverview.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (ctsSuccess) {
-            out.println("{\"ADD\":\"1\"}");
-        } else {
-            out.println("{\"ADD\":\"0\"}");
+            out.println("{\"ERROR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( ex.toString() ) ) + "\"}");
+            Logger.getLogger(UserManagementOverview.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
-        processRequest(request, response, uid, request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        processRequest(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
-        processRequest(request, response, uid, request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        //processRequest(request, response);
     }
 }
