@@ -23,11 +23,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class AddDashboardLink extends HttpServlet {
+public class UpdateContractType extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uuid, String title, String desc, String target)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cttyid, String cotrsn, String cotrln, String mactions)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -38,33 +38,31 @@ public class AddDashboardLink extends HttpServlet {
         response.addHeader("Access-Control-Allow-Methods", "*");
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
-        boolean ctsSuccess = true;
+        String ctsSuccess = "0";
+        
         
         try {
-            Functions.AddDashboardLink( uuid, title, desc, target);
+            ctsSuccess = Functions.UpdateContractType(cttyid,cotrsn,cotrln,mactions);
         } catch (NamingException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(UpdateContractType.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(UpdateContractType.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (ctsSuccess) {
-            out.println("{\"ADD\":\"1\"}");
-        } else {
-            out.println("{\"ADD\":\"0\"}");
-        }
+        
+        out.println("{\"EXEC\":\"" + ctsSuccess + "\",\"MACTIONS\":\"" + mactions + "\"}");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        processRequest(request,response,request.getParameter("cttyid"),request.getParameter("cotrsn"),request.getParameter("cotrln"),request.getParameter("mactions"));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        //
     }
 }

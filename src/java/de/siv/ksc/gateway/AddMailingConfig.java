@@ -23,11 +23,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class AddDashboardLink extends HttpServlet {
+public class AddMailingConfig extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uuid, String title, String desc, String target)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uuid, String key, String val)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -41,13 +41,13 @@ public class AddDashboardLink extends HttpServlet {
         boolean ctsSuccess = true;
         
         try {
-            Functions.AddDashboardLink( uuid, title, desc, target);
+            Functions.AddMailingConfig(uuid,key,val);
         } catch (NamingException ex) {
             ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AddMailingConfig.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AddMailingConfig.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (ctsSuccess) {
             out.println("{\"ADD\":\"1\"}");
@@ -59,12 +59,12 @@ public class AddDashboardLink extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        processRequest(request, response, request.getParameter("uuid"), request.getParameter("key"), request.getParameter("val"));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        processRequest(request, response, request.getParameter("uuid"), request.getParameter("key"), request.getParameter("val"));
     }
 }

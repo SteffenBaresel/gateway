@@ -41,19 +41,11 @@ public class SendHtmlMail extends HttpServlet {
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
         
-        String tocc = props.getProperty("MAIL.FXCC") + "," + cc;
         boolean ctsSuccess = true;
-        String fulltext = null;
-        
-        if (props.getProperty("MAIL.ATTN").length() > 0) {
-            fulltext = text + "" + Basics.readFile(props.getProperty("MAIL.ATTN")); 
-        } else {
-            fulltext = text;
-        }
         
         try {            
             try {
-                MailHtml.send(to,tocc,from,subject,fulltext);
+                MailHtml.send(to,cc,from,subject,text);
             } catch (NamingException ex) {
                 ctsSuccess = false;
                 Logger.getLogger(SendHtmlMail.class.getName()).log(Level.SEVERE, null, ex);
@@ -70,21 +62,21 @@ public class SendHtmlMail extends HttpServlet {
         }
         
         if (ctsSuccess) {
-            out.println("{\"SEND\":\"1\",\"TO\":\"" + to + "\",\"CC\":\"" + tocc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
+            out.println("{\"SEND\":\"1\",\"TO\":\"" + to + "\",\"CC\":\"" + cc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
         } else {
-            out.println("{\"SEND\":\"0\",\"TO\":\"" + to + "\",\"CC\":\"" + tocc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
+            out.println("{\"SEND\":\"0\",\"TO\":\"" + to + "\",\"CC\":\"" + cc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, Base64Coder.decodeString(request.getParameter("to")), Base64Coder.decodeString(request.getParameter("cc")), Base64Coder.decodeString(request.getParameter("from")), Base64Coder.decodeString(request.getParameter("subject")), Base64Coder.decodeString(request.getParameter("text")));
+        processRequest(request, response, request.getParameter("to"), request.getParameter("cc"), request.getParameter("from"), request.getParameter("subject").replace("78", "+"), request.getParameter("text").replace("78", "+"));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, Base64Coder.decodeString(request.getParameter("to")), Base64Coder.decodeString(request.getParameter("cc")), Base64Coder.decodeString(request.getParameter("from")), Base64Coder.decodeString(request.getParameter("subject")), Base64Coder.decodeString(request.getParameter("text")));
+        processRequest(request, response, request.getParameter("to"), request.getParameter("cc"), request.getParameter("from"), request.getParameter("subject").replace("78", "+"), request.getParameter("text").replace("78", "+"));
     }
 }

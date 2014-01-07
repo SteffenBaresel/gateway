@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,12 +24,12 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class AddDashboardLink extends HttpServlet {
+public class CreateServiceEntry extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uuid, String title, String desc, String target)
-        throws ServletException, IOException, FileNotFoundException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uuid, String cuid, String ccid, String comtid, String tm, String dl, String co, String esk)
+        throws ServletException, IOException, FileNotFoundException, ParseException {
 
         if (props == null) {
             props = Basics.getConfiguration();
@@ -38,33 +39,35 @@ public class AddDashboardLink extends HttpServlet {
         response.addHeader("Access-Control-Allow-Methods", "*");
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
-        boolean ctsSuccess = true;
+        String ctsSuccess = "0";
+        
         
         try {
-            Functions.AddDashboardLink( uuid, title, desc, target);
+            ctsSuccess = Functions.CreateServiceEntry(uuid,cuid,ccid,comtid,tm,dl,co,esk);
         } catch (NamingException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(CreateCustomer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(CreateCustomer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (ctsSuccess) {
-            out.println("{\"ADD\":\"1\"}");
-        } else {
-            out.println("{\"ADD\":\"0\"}");
-        }
+        
+        out.println("{\"EXEC\":\"" + ctsSuccess + "\",\"CO\":\"" + co + "\"}");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+            throws ServletException, IOException, FileNotFoundException {
+        try {
+            processRequest(request,response,request.getParameter("uuid"),request.getParameter("cuid"),request.getParameter("ccid"),request.getParameter("comtid"),request.getParameter("tm"),request.getParameter("dl"),request.getParameter("co"),request.getParameter("esk"));
+        } catch (ParseException ex) {
+            Logger.getLogger(CreateServiceEntry.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        //
     }
 }

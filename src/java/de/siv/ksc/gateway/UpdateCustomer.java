@@ -23,11 +23,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class AddDashboardLink extends HttpServlet {
+public class UpdateCustomer extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uuid, String title, String desc, String target)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cuid, String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -38,33 +38,31 @@ public class AddDashboardLink extends HttpServlet {
         response.addHeader("Access-Control-Allow-Methods", "*");
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
-        boolean ctsSuccess = true;
+        String ctsSuccess = "0";
+        
         
         try {
-            Functions.AddDashboardLink( uuid, title, desc, target);
+            ctsSuccess = Functions.UpdateCustomer(cuid,cname,cnumber,cmail,cesmail,caddress,ccomm,ct1,ct1an,ct1pv,ct1pi);
         } catch (NamingException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(UpdateCustomer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            ctsSuccess = false;
-            Logger.getLogger(AddDashboardLink.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = "0";
+            Logger.getLogger(UpdateCustomer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (ctsSuccess) {
-            out.println("{\"ADD\":\"1\"}");
-        } else {
-            out.println("{\"ADD\":\"0\"}");
-        }
+        
+        out.println("{\"EXEC\":\"" + ctsSuccess + "\",\"CADDRESS\":\"" + caddress + "\",\"CCOMM\":\"" + ccomm + "\"}");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        processRequest(request,response,request.getParameter("cuid"),request.getParameter("cname"),request.getParameter("cnumber"),request.getParameter("cmail"),request.getParameter("cesmail"),request.getParameter("caddress"),request.getParameter("ccomm"),request.getParameter("ct1"),request.getParameter("ct1an"),request.getParameter("ct1pv"),request.getParameter("ct1pi"));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("uuid"), request.getParameter("title"), request.getParameter("desc"), request.getParameter("target"));
+        //
     }
 }

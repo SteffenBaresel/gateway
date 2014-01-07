@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import javax.mail.Address;
 import javax.mail.Message;
@@ -34,7 +33,7 @@ import javax.sql.DataSource;
 public class MailHtml {
     static Properties props = null;
     
-    static public void send(String Recipient, String CCRecipient, String Sender, String Subject, String Text) throws FileNotFoundException, IOException, NoSuchProviderException, MessagingException, NamingException, SQLException {
+    static public void send(String to, String cc, String from, String subject, String text) throws FileNotFoundException, IOException, NoSuchProviderException, MessagingException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
@@ -63,25 +62,26 @@ public class MailHtml {
         Properties mail=new Properties();
         mail.put("mail.smtp.auth", "true");
         mail.put("mail.smtp.starttls.enable", "true");
-        mail.put("mail.from", Sender);
+        mail.put("mail.from", Base64Coder.decodeString( from ));
         
         Session session=Session.getInstance(mail);
         Transport transport=session.getTransport("smtp");
         transport.connect(host, port, user, pass);
         
-        Address[] addresses=InternetAddress.parse(Recipient);
-        Address[] ccaddresses=InternetAddress.parse(CCRecipient);
+        Address[] addresses=InternetAddress.parse(Base64Coder.decodeString( to ));
+        Address[] ccaddresses=InternetAddress.parse(Base64Coder.decodeString( cc ));
         
-        Message message=new MimeMessage(session);
+        MimeMessage message = new MimeMessage(session);
         message.setFrom();
-        message.setRecipients(Message.RecipientType.TO, addresses);
-        message.addRecipients(Message.RecipientType.CC, ccaddresses);
-        message.setSubject(Subject);
+        message.setRecipients(MimeMessage.RecipientType.TO, addresses);
+        message.addRecipients(MimeMessage.RecipientType.CC, ccaddresses);
+        message.setSubject(Basics.encodeHtml( Base64Coder.decodeString( subject ) ));
         
-        message.setText(Text);
+        message.setText(Basics.encodeHtml( Base64Coder.decodeString( text ) ), "utf-8", "html");
         
-        transport.sendMessage(message, addresses);
+        transport.sendMessage(message, message.getAllRecipients());
         
         transport.close();
+        cn.close();
     }
 }
