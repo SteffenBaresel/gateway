@@ -12,11 +12,11 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <!--GATEWAY_ENGINE:2.3.131203-->
+        <!--GATEWAY_ENGINE:3.0.140205-->
         <center>
-            <h2>kVASy&reg; System Control - Gateway Engine 2.3.131203</h2>
+            <h2>kVASy&reg; System Control - Gateway Engine 3.0.140205</h2>
             <p>
-                <font size=2>Entwicklungslinie 2 Update 3<!-- Author: Steffen Baresel --></font>
+                <font size=2>Entwicklungslinie 3 Build 2014.02<!-- Author: Steffen Baresel --></font>
             </p>
         </center>
         <div>
@@ -91,27 +91,23 @@
             <li><b>AutoCompleteCustomer</b> Get Auto Complete Customer Infos, required BASE64 values for parameter URL: <a href="/gateway/exec/AutoCompleteCustomer?cunm=">/gateway/exec/AutoCompleteCustomer?cunm=</a>
         </ul>
         </font>
-        <br></br>
+        <br></br>        
         <hr>
         <br></br>
-        <!--MONITORING_VERSION:2.1.131028-->
-        <!--Modul: <i><b>Monitoring</b></i><br>
-        Version: <i><b>2.1.131028</b></i><br>
+        <!--MONITORING_VERSION:3.0.140205-->
+        Modul: <i><b>Monitoring</b></i><br>
+        Version: <i><b>3.0.140205</b></i><br>
         Comments: -
         <br></br>
         Format: <i><b>JSON</b></i><br>
         <font size=2>Query:<br>
         <ul>
-            <!--li><b>Installation/Configuration</b>
-                <ul>
-                    <li><b>PrepareMonitoring</b> - Prepare Database Backend for Monitoring usage URL: <a href="/gateway/repository/PrepareMonitoring">/gateway/repository/PrepareMonitoring</a></li-->
-                </ul>
-            </li><br>
-            <!--li><b>GetUserConfig</b> - List User Configuration From Repository URL: <a href="/gateway/repository/GetUserConfig">/gateway/repository/GetUserConfig</a></li-->
+            <li><b>BigTaov</b> - Get Values for Big Taov Module URL: <a href="/gateway/monitoring/BigTaov">/gateway/monitoring/BigTaov</a></li>
+            <li><b>LivetickerEntries</b> - Get Liveticker Entries URL: <a href="/gateway/monitoring/LivetickerEntries">/gateway/monitoring/LivetickerEntries</a></li>
         </ul>
         </font>
         <br></br>
-        <hr-->
-        <center><font size="1"><b>SIV.AG &copy;2013</b></font></center>
+        <hr>
+        <center><font size="1"><b>SIV.AG &copy;2014</b></font></center>
     </body>
 </html>

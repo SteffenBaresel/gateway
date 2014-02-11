@@ -35,6 +35,12 @@
             <role-name>Protected</role-name>
         </auth-constraint>
     </security-constraint>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Exclude from Security</web-resource-name>
+            <url-pattern>/monitoring/*</url-pattern>
+        </web-resource-collection>
+    </security-constraint>
     <security-role>
         <role-name>Protected</role-name>
     </security-role>
@@ -365,6 +371,28 @@
         <servlet-name>AutoCompleteCustomer</servlet-name>
         <url-pattern>/exec/AutoCompleteCustomer</url-pattern>
     </servlet-mapping>
+    
+    <!--
+            Monitoring Servlets
+    -->
+    
+    <servlet>
+        <servlet-name>BigTaov</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.BigTaov</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BigTaov</servlet-name>
+        <url-pattern>/monitoring/BigTaov</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>LivetickerEntries</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.LivetickerEntries</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LivetickerEntries</servlet-name>
+        <url-pattern>/monitoring/LivetickerEntries</url-pattern>
+    </servlet-mapping>
+    
     <!--
             Welcome File & Datasource
     -->
