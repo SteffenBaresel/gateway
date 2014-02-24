@@ -35,12 +35,12 @@
             <role-name>Protected</role-name>
         </auth-constraint>
     </security-constraint>
-    <security-constraint>
+    <!--security-constraint>
         <web-resource-collection>
             <web-resource-name>Exclude from Security</web-resource-name>
             <url-pattern>/monitoring/*</url-pattern>
         </web-resource-collection>
-    </security-constraint>
+    </security-constraint-->
     <security-role>
         <role-name>Protected</role-name>
     </security-role>
@@ -371,6 +371,22 @@
         <servlet-name>AutoCompleteCustomer</servlet-name>
         <url-pattern>/exec/AutoCompleteCustomer</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>GetContractRole</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetContractRole</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetContractRole</servlet-name>
+        <url-pattern>/exec/GetContractRole</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetCustomerRole</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetCustomerRole</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetCustomerRole</servlet-name>
+        <url-pattern>/exec/GetCustomerRole</url-pattern>
+    </servlet-mapping>
     
     <!--
             Monitoring Servlets
@@ -392,6 +408,110 @@
         <servlet-name>LivetickerEntries</servlet-name>
         <url-pattern>/monitoring/LivetickerEntries</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>MonitoringFull</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.MonitoringFull</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MonitoringFull</servlet-name>
+        <url-pattern>/monitoring/MonitoringFull</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ServiceAvail</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.ServiceAvail</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServiceAvail</servlet-name>
+        <url-pattern>/monitoring/ServiceAvail</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ServiceHistory</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.ServiceHistory</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServiceHistory</servlet-name>
+        <url-pattern>/monitoring/ServiceHistory</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>HostInfo</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.HostInfo</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HostInfo</servlet-name>
+        <url-pattern>/monitoring/HostInfo</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ServiceReCheck</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.ServiceReCheck</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServiceReCheck</servlet-name>
+        <url-pattern>/monitoring/ServiceReCheck</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>mGetCustomer</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.GetCustomer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mGetCustomer</servlet-name>
+        <url-pattern>/monitoring/GetCustomer</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>mGetCustomerMailing</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.GetCustomerMailing</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mGetCustomerMailing</servlet-name>
+        <url-pattern>/monitoring/GetCustomerMailing</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>mGetCustomerContractNumbers</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.GetCustomerContractNumbers</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mGetCustomerContractNumbers</servlet-name>
+        <url-pattern>/monitoring/GetCustomerContractNumbers</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>AcknowledgeService</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.AcknowledgeService</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AcknowledgeService</servlet-name>
+        <url-pattern>/monitoring/AcknowledgeService</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetAcknowledgement</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.GetAcknowledgement</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetAcknowledgement</servlet-name>
+        <url-pattern>/monitoring/GetAcknowledgement</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetHostCustomer</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.GetHostCustomer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetHostCustomer</servlet-name>
+        <url-pattern>/monitoring/GetHostCustomer</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetHostRole</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.GetHostRole</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetHostRole</servlet-name>
+        <url-pattern>/monitoring/GetHostRole</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetHostContract</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.GetHostContract</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetHostContract</servlet-name>
+        <url-pattern>/monitoring/GetHostContract</url-pattern>
+    </servlet-mapping>
     
     <!--
             Welcome File & Datasource
@@ -405,4 +525,5 @@
         <res-type>javax.sql.DataSource</res-type>
         <res-auth>Container</res-auth>
     </resource-ref>
-</web-app>
+    
+    </web-app>

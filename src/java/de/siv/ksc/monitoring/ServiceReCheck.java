@@ -4,11 +4,14 @@
  */
 package de.siv.ksc.monitoring;
 
-import de.siv.ksc.modules.*;
+import de.siv.ksc.modules.Basics;
+import de.siv.ksc.modules.Functions;
+import de.siv.ksc.modules.Monitoring;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,32 +25,42 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class BigTaov extends HttpServlet {
+public class ServiceReCheck extends HttpServlet {
     
     Properties props = null;
     
     @SuppressWarnings("empty-statement")
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String hstid, String srvid, String ts, String instid)
             throws ServletException, IOException {
+        
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Allow-Methods", "*");
+        response.setContentType("application/json; charset=utf-8");
+        PrintWriter out = response.getWriter();
+        String ctsSuccess = "0";
+                
         try {
-            if (props == null) {
-                props = Basics.getConfiguration();
-            }
-            
-            Functions.UpdateLastLogin(uid);
-            response.addHeader("Access-Control-Allow-Origin", "*");
-            response.addHeader("Access-Control-Allow-Methods", "*");
-            response.setContentType("application/json; charset=utf-8");
-            PrintWriter out = response.getWriter(); 
-            out.println(Monitoring.BigTaov(uid));
-            
+            ctsSuccess = Monitoring.ServiceReCheck(uid,hstid,srvid,ts,instid);
         } catch (FileNotFoundException ex) {
+            ctsSuccess = "0";
             Logger.getLogger(BigTaov.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
+            ctsSuccess = "0";
             Logger.getLogger(BigTaov.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NamingException ex) {
+            ctsSuccess = "0";
+            Logger.getLogger(BigTaov.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            ctsSuccess = "0";
             Logger.getLogger(BigTaov.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        if ("1".equals(ctsSuccess)) {
+            out.println("{\"EXEC\":\"1\"}");
+        } else {
+            out.println("{\"EXEC\":\"0\"}");
+        }
+        
     }
 
     @Override
@@ -59,7 +72,7 @@ public class BigTaov extends HttpServlet {
         } else {
             uid = request.getParameter("user");
         }
-        processRequest(request, response, uid );
+        processRequest(request, response, uid, request.getParameter("hstid"), request.getParameter("srvid"), request.getParameter("ts"), request.getParameter("instid") );
     }
 
     @Override

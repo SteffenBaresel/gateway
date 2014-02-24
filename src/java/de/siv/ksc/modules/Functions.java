@@ -140,14 +140,14 @@ public class Functions {
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
         
-        PreparedStatement ps = cn.prepareStatement("SELECT decode(usnm,'base64'),decode(usdc,'base64'),decode(umai,'base64') FROM profiles_user WHERE uili=? AND ulal>? ORDER BY 3");
+        PreparedStatement ps = cn.prepareStatement("SELECT decode(usnm,'base64'),decode(usdc,'base64'),decode(umai,'base64'),bit_length(upic) FROM profiles_user WHERE uili=? AND ulal>? ORDER BY 3");
         ps.setBoolean(1,true);
         ps.setLong(2,stime);
         ResultSet rs = ps.executeQuery();
         
         String out = "{\"USER\":[";
         while (rs.next()) { 
-            out += "{\"USNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(1) ) ) + "\",\"USDC\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(2) ) ) + "\",\"UMAI\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\"},";
+            out += "{\"USNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(1) ) ) + "\",\"USDC\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(2) ) ) + "\",\"UMAI\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"PCTRL\":\"" + rs.getString(4) + "\"},";
         }
         out = out.substring(0, out.length()-1);
         out += "]}";
@@ -1500,17 +1500,208 @@ public class Functions {
         if ( rsC.next() ) { count = rsC.getString( 1 ); }
         
         
-        PreparedStatement ps = cn.prepareStatement("select decode(c.usdc,'base64'),decode(c.usnm,'base64'),d.ccnr,decode(e.cotrln,'base64'),decode(b.cunm,'base64'),decode(a.comt,'base64'),a.delay,a.utim,a.esk from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid order by a.msid DESC offset ? limit ?");
+        PreparedStatement ps = cn.prepareStatement("select decode(c.usdc,'base64'),decode(c.usnm,'base64'),d.ccnr,decode(e.cotrln,'base64'),decode(b.cunm,'base64'),decode(a.comt,'base64'),a.delay,a.utim,a.esk,bit_length(c.upic) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid order by a.msid DESC offset ? limit ?");
         ps.setInt(1, Integer.parseInt( Base64Coder.decodeString( Offset ) ));
         ps.setInt(2, Integer.parseInt( Base64Coder.decodeString( Limit ) ));
         ResultSet rs = ps.executeQuery();
         
         out = "{\"COUNT\":\"" + Base64Coder.encodeString( count ) + "\",\"ROWS\":[";
         while ( rs.next() ) {
-            out += "{\"NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 1 ) ) ) + "\",\"UID\":\"" + Base64Coder.encodeString( rs.getString( 2 ) ) + "\",\"AN\":\"" + Base64Coder.encodeString( rs.getString( 3 ) ) + "\",\"CONM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 4 ) ) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 5 ) ) ) + "\",\"TEXT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 6 ) ) ) + "\",\"TS\":\"" + Base64Coder.encodeString( rs.getString( 8 ) ) + "\",\"ESK\":\"" + Base64Coder.encodeString( rs.getString( 9 ) ) + "\"},";
+            out += "{\"NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 1 ) ) ) + "\",\"UID\":\"" + Base64Coder.encodeString( rs.getString( 2 ) ) + "\",\"AN\":\"" + Base64Coder.encodeString( rs.getString( 3 ) ) + "\",\"CONM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 4 ) ) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 5 ) ) ) + "\",\"TEXT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 6 ) ) ) + "\",\"TS\":\"" + Base64Coder.encodeString( rs.getString( 8 ) ) + "\",\"ESK\":\"" + Base64Coder.encodeString( rs.getString( 9 ) ) + "\",\"PCTRL\":\"" + rs.getString( 10 ) + "\"},";
         }
         out = out.substring(0, out.length()-1); out += "]}";
+        String replace = out.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        cn.close();
+        return replace;
+    }
+    
+    /*
+     * Customer Role Mapping for Configuration
+     */
+    
+    static public String GetCustomerRole() throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        /* Require Base64 Value for Parameter Id */
+        String line = "";
+        Context ctxR = new InitialContext(); 
+        DataSource dsR  = (DataSource) ctxR.lookup("jdbc/repository"); 
+        Connection cnR = dsR.getConnection();
         
+        PreparedStatement psrl = cnR.prepareStatement("SELECT rlid,decode(rlnm,'base64'),decode(rlde,'base64') FROM profiles_role order by 3");
+        ResultSet rl = psrl.executeQuery();
+        PreparedStatement pscu = cnR.prepareStatement("SELECT cuid,decode(cunm,'base64'),cunr FROM managed_service_cinfo order by 3");
+        ResultSet cu = pscu.executeQuery();
+        PreparedStatement psma = cnR.prepareStatement("SELECT cuid,rlid FROM profiles_customer_role_mapping");
+        ResultSet ma = psma.executeQuery();
+        
+        List<String> macuid = new ArrayList<String>();
+        List<String> marlid = new ArrayList<String>();
+        
+        while (ma.next()) {
+            macuid.add(ma.getString( 1 ));
+            marlid.add(ma.getString( 2 ));
+        }
+        
+        line = "{\"ROLE\":[";
+        while (rl.next()) {
+            line += "{\"ROID\":\"" + rl.getString( 1 ) + "\",\"RONM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rl.getString( 2 ) ) ) + "\",\"RODC\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rl.getString( 3 ) ) ) + "\"},";
+        }
+        line = line.substring(0, line.length()-1);
+        line += "],\"CUSTOMER\":[";
+        while (cu.next()) {
+            String cuid = cu.getString( 1 );
+            String cunm = cu.getString( 2 );
+            String cunr = cu.getString( 3 );
+            line += "{\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( cunm ) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( cunr ) ) + "\",\"CUID\":\"" + cuid + "\",\"ROLES\":[";
+            for (int i=0;i<macuid.size();i++) {
+                if (cuid.equals(macuid.get(i))) {
+                    line += "\"" + marlid.get(i) + "\",";
+                }
+            }
+            line = line.substring(0, line.length()-1);
+            line += "]},";
+        }
+        line = line.substring(0, line.length()-1);
+        line += "]}";
+        String replace = line.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        /*
+         * Close Connection
+         */
+        cnR.close();
+        return replace;
+    }
+    
+    /*
+     * Contract Role Mapping for Configuration
+     */
+    
+    static public String GetContractRole() throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        /* Require Base64 Value for Parameter Id */
+        String line = "";
+        Context ctxR = new InitialContext(); 
+        DataSource dsR  = (DataSource) ctxR.lookup("jdbc/repository"); 
+        Connection cnR = dsR.getConnection();
+        
+        PreparedStatement psrl = cnR.prepareStatement("SELECT rlid,decode(rlnm,'base64'),decode(rlde,'base64') FROM profiles_role order by 3");
+        ResultSet rl = psrl.executeQuery();
+        PreparedStatement pscc = cnR.prepareStatement("select a.ccid,decode(b.cotrln,'base64'),a.ccnr,decode(c.cunm,'base64') from managed_service_ccontracts a, class_contracttypes b, managed_service_cinfo c where a.cttyid=b.cttyid and a.cuid=c.cuid order by 3");
+        ResultSet cc = pscc.executeQuery();
+        PreparedStatement psma = cnR.prepareStatement("SELECT ccid,rlid FROM profiles_contract_role_mapping");
+        ResultSet ma = psma.executeQuery();
+        
+        List<String> maccid = new ArrayList<String>();
+        List<String> marlid = new ArrayList<String>();
+        
+        while (ma.next()) {
+            maccid.add(ma.getString( 1 ));
+            marlid.add(ma.getString( 2 ));
+        }
+        
+        line = "{\"ROLE\":[";
+        while (rl.next()) {
+            line += "{\"ROID\":\"" + rl.getString( 1 ) + "\",\"RONM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rl.getString( 2 ) ) ) + "\",\"RODC\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rl.getString( 3 ) ) ) + "\"},";
+        }
+        line = line.substring(0, line.length()-1);
+        line += "],\"CONTRACT\":[";
+        while (cc.next()) {
+            String ccid = cc.getString( 1 );
+            String ccnm = cc.getString( 2 );
+            String ccnr = cc.getString( 3 );
+            String cunm = cc.getString( 4 );
+            line += "{\"CCNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( ccnm ) ) + "\",\"CCNR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( ccnr ) ) + "\",\"CCID\":\"" + ccid + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( cunm ) ) + "\",\"ROLES\":[";
+            for (int i=0;i<maccid.size();i++) {
+                if (ccid.equals(maccid.get(i))) {
+                    line += "\"" + marlid.get(i) + "\",";
+                }
+            }
+            line = line.substring(0, line.length()-1);
+            line += "]},";
+        }
+        line = line.substring(0, line.length()-1);
+        line += "]}";
+        String replace = line.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        /*
+         * Close Connection
+         */
+        cnR.close();
+        return replace;
+    }
+    
+    /*
+     * Update Contract / Customer Role Mapping
+     */
+    
+    static public String UpdateContractRole(String Ccid, String Rlid) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        String out = "0";
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        PreparedStatement ps = cn.prepareStatement("SELECT ccid,rlid FROM profiles_contract_role_mapping WHERE ccid=? AND rlid=?");
+        ps.setInt(1,Integer.parseInt(Ccid));
+        ps.setInt(2,Integer.parseInt(Rlid));
+        ResultSet rs = ps.executeQuery();
+        /*
+         * Update
+         */
+        if (rs.next()) {
+            PreparedStatement psD = cn.prepareStatement("DELETE FROM profiles_contract_role_mapping WHERE ccid=? AND rlid=?");
+            psD.setInt(1,Integer.parseInt(Ccid));
+            psD.setInt(2,Integer.parseInt(Rlid));
+            psD.executeUpdate();
+            out = "1";
+        } else {
+            PreparedStatement psD = cn.prepareStatement("INSERT INTO profiles_contract_role_mapping (CCID,RLID) VALUES (?,?)");
+            psD.setInt(1,Integer.parseInt(Ccid));
+            psD.setInt(2,Integer.parseInt(Rlid));
+            psD.executeUpdate();
+            out = "1";
+        }
+        /*
+         * Close Connection
+         */
+        cn.close();
+        return out;
+    }
+    
+    static public String UpdateCustomerRole(String Cuid, String Rlid) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        String out = "0";
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        PreparedStatement ps = cn.prepareStatement("SELECT cuid,grid FROM profiles_customer_role_mapping WHERE cuid=? AND rlid=?");
+        ps.setInt(1,Integer.parseInt(Cuid));
+        ps.setInt(2,Integer.parseInt(Rlid));
+        ResultSet rs = ps.executeQuery();
+        /*
+         * Update
+         */
+        if (rs.next()) {
+            PreparedStatement psD = cn.prepareStatement("DELETE FROM profiles_customer_role_mapping WHERE cuid=? AND rlid=?");
+            psD.setInt(1,Integer.parseInt(Cuid));
+            psD.setInt(2,Integer.parseInt(Rlid));
+            psD.executeUpdate();
+            out = "1";
+        } else {
+            PreparedStatement psD = cn.prepareStatement("INSERT INTO profiles_customer_role_mapping (CUID,RLID) VALUES (?,?)");
+            psD.setInt(1,Integer.parseInt(Cuid));
+            psD.setInt(2,Integer.parseInt(Rlid));
+            psD.executeUpdate();
+            out = "1";
+        }
+        /*
+         * Close Connection
+         */
         cn.close();
         return out;
     }

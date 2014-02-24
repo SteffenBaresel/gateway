@@ -89,6 +89,8 @@
             <li><b>CreateServiceEntry</b> Create Service Entry, required BASE64 values for parameter URL: <a href="/gateway/exec/CreateServiceEntry?uuid=&cuid=&ccid=&enid=&tm=&dl=&co=">/gateway/exec/CreateServiceEntry?uuid=&cuid=&ccid=&enid=&tm=&dl=&co=</a>
             <li><b>GetServiceEntry</b> Get Service Entry, required BASE64 values for parameter URL: <a href="/gateway/exec/GetServiceEntry?uuid=">/gateway/exec/GetServiceEntry?uuid=</a>
             <li><b>AutoCompleteCustomer</b> Get Auto Complete Customer Infos, required BASE64 values for parameter URL: <a href="/gateway/exec/AutoCompleteCustomer?cunm=">/gateway/exec/AutoCompleteCustomer?cunm=</a>
+            <li><b>GetCustomerRole</b> - Get Role Customer Mapping URL: <a href="/gateway/exec/GetCustomerRole">/gateway/exec/GetCustomerRole</a></li>
+            <li><b>GetContractRole</b> - Get Role Contract Mapping URL: <a href="/gateway/exec/GetContractRole">/gateway/exec/GetContractRole</a></li>
         </ul>
         </font>
         <br></br>        
@@ -104,6 +106,19 @@
         <ul>
             <li><b>BigTaov</b> - Get Values for Big Taov Module URL: <a href="/gateway/monitoring/BigTaov">/gateway/monitoring/BigTaov</a></li>
             <li><b>LivetickerEntries</b> - Get Liveticker Entries URL: <a href="/gateway/monitoring/LivetickerEntries">/gateway/monitoring/LivetickerEntries</a></li>
+            <li><b>MonitoringFull</b> - Get Full Monitoring Information URL: <a href="/gateway/monitoring/MonitoringFull">/gateway/monitoring/MonitoringFull</a></li>
+            <li><b>HostInfo</b> - Get Full Monitoring Information URL: <a href="/gateway/monitoring/HostInfo?hstid=">//gateway/monitoring/HostInfo?hstid=</a></li>
+            <li><b>ServiceHistory</b> - Get Full Monitoring Information URL: <a href="/gateway/monitoring/ServiceHistory?srvid=">/gateway/monitoring/ServiceHistory?srvid=</a></li>
+            <li><b>ServiceAvail</b> - Get Full Monitoring Information URL: <a href="/gateway/monitoring/ServiceAvail?srvid=">/gateway/monitoring/ServiceAvaill?srvid=</a></li>
+            <li><b>ServiceReCheck</b> - Reschedule Service Check URL: <a href="/gateway/monitoring/ServiceReCheck?user=&hstid=&srvid=&ts=&instid=">/gateway/monitoring/ServiceReCheck?user=&hstid=&srvid=&ts=&instid=</a></li>
+            <li><b>GetCustomer</b> - Get configured Customer for Host URL: <a href="/gateway/monitoring/GetCustomer?hstid=">/gateway/monitoring/GetCustomer?hstid=</a></li>
+            <li><b>GetCustomerContractNumbers</b> - Get Customer & Host assigned Contract Numbers, required BASE64 values for parameter URL: <a href="/gateway/monitoring/GetCustomerContractNumbers?cuid=&hstid=">/gateway/monitoring/GetCustomerContractNumbers?cuid=&hstid=</a></li>
+            <li><b>GetCustomerMailing</b> - Get Customer for Host To,Esk1,Esk2,Esk3 mail Configurations, required BASE64 values for parameter URL: <a href="/gateway/monitoring/GetCustomerMailing?cuid=&uuid=&hstid=">/gateway/monitoring/GetCustomerMailing?cuid=&uuid=&hstid=</a></li>
+            <li><b>AcknowledgeService</b> Acknowledge Service Problem, required BASE64 values for parameter URL: <a href="/gateway/monitoring/AcknowledgeService?hstna=&hstid=&srvna=&srvid=uuid=&cuid=&ccid=&enid=&tm=&dl=&co=">/gateway/monitoring/AcknowledgeService?hstna=&hstid=&srvna=&srvid=&uuid=&cuid=&ccid=&enid=&tm=&dl=&co=</a>
+            <li><b>GetAcknowledgement</b> - Get configured Acknowledgement URL: <a href="/gateway/monitoring/GetAcknowledgement?ackid=">/gateway/monitoring/GetAcknowledgement?ackid=</a></li>
+            <li><b>GetHostCustomer</b> - Get Host Customer Mapping URL: <a href="/gateway/monitoring/GetHostCustomer">/gateway/monitoring/GetHostCustomer</a></li>
+            <li><b>GetHostContract</b> - Get Host Contract Mapping URL: <a href="/gateway/monitoring/GetHostContract">/gateway/monitoring/GetHostContract</a></li>
+            <li><b>GetHostRole</b> - Get Host Role Mapping URL: <a href="/gateway/monitoring/GetHostRole">/gateway/monitoring/GetHostRole</a></li>
         </ul>
         </font>
         <br></br>

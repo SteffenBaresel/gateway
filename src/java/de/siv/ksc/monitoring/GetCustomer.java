@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.siv.ksc.gateway;
+package de.siv.ksc.monitoring;
 
 import de.siv.ksc.modules.Basics;
-import de.siv.ksc.modules.Functions;
+import de.siv.ksc.modules.Monitoring;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,11 +23,12 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class WhoIsLoggedIn extends HttpServlet {
+public class GetCustomer extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid)
+    @SuppressWarnings("empty-statement")
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String hstid)
             throws ServletException, IOException {
         try {
             if (props == null) {
@@ -38,36 +39,27 @@ public class WhoIsLoggedIn extends HttpServlet {
             response.addHeader("Access-Control-Allow-Methods", "*");
             response.setContentType("application/json; charset=utf-8");
             PrintWriter out = response.getWriter(); 
-            
-            Functions.UpdateUserIsLoggedIn(uid);
-                    
-            out.println(Functions.WhoIsLoggedIn(uid));
-            
+            out.println(Monitoring.GetCustomer(hstid));
             
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(WhoIsLoggedIn.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GetCustomer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            Logger.getLogger(WhoIsLoggedIn.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GetCustomer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NamingException ex) {
-            Logger.getLogger(WhoIsLoggedIn.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GetCustomer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String uid = null;
-        if (request.getParameter("user") == null) {
-            uid = request.getRemoteUser();
-        } else {
-            uid = request.getParameter("user");
-        }
-        processRequest(request, response, uid);
+        processRequest(request, response, request.getParameter("hstid"));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //processRequest(request, response, request.getRemoteUser() );
+        //
     }
 }
+

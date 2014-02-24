@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.siv.ksc.gateway;
+package de.siv.ksc.monitoring;
 
 import de.siv.ksc.modules.Basics;
-import de.siv.ksc.modules.Functions;
+import de.siv.ksc.modules.Monitoring;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,10 +23,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class WhoIsLoggedIn extends HttpServlet {
+public class MonitoringFull extends HttpServlet {
     
     Properties props = null;
     
+    @SuppressWarnings("empty-statement")
     protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid)
             throws ServletException, IOException {
         try {
@@ -38,18 +39,14 @@ public class WhoIsLoggedIn extends HttpServlet {
             response.addHeader("Access-Control-Allow-Methods", "*");
             response.setContentType("application/json; charset=utf-8");
             PrintWriter out = response.getWriter(); 
-            
-            Functions.UpdateUserIsLoggedIn(uid);
-                    
-            out.println(Functions.WhoIsLoggedIn(uid));
-            
+            out.println(Monitoring.MonitoringFull(uid));
             
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(WhoIsLoggedIn.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BigTaov.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            Logger.getLogger(WhoIsLoggedIn.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BigTaov.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NamingException ex) {
-            Logger.getLogger(WhoIsLoggedIn.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BigTaov.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -62,7 +59,7 @@ public class WhoIsLoggedIn extends HttpServlet {
         } else {
             uid = request.getParameter("user");
         }
-        processRequest(request, response, uid);
+        processRequest(request, response, uid );
     }
 
     @Override
