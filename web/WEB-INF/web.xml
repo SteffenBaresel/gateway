@@ -387,6 +387,22 @@
         <servlet-name>GetCustomerRole</servlet-name>
         <url-pattern>/exec/GetCustomerRole</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateCustomerRole</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.UpdateCustomerRole</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateCustomerRole</servlet-name>
+        <url-pattern>/exec/UpdateCustomerRole</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateContractRole</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.UpdateContractRole</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateContractRole</servlet-name>
+        <url-pattern>/exec/UpdateContractRole</url-pattern>
+    </servlet-mapping>
     
     <!--
             Monitoring Servlets
@@ -512,6 +528,30 @@
         <servlet-name>GetHostContract</servlet-name>
         <url-pattern>/monitoring/GetHostContract</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateHostRole</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.UpdateHostRole</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateHostRole</servlet-name>
+        <url-pattern>/monitoring/UpdateHostRole</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateHostCustomer</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.UpdateHostCustomer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateHostCustomer</servlet-name>
+        <url-pattern>/monitoring/UpdateHostCustomer</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateHostContract</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.UpdateHostContract</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateHostContract</servlet-name>
+        <url-pattern>/monitoring/UpdateHostContract</url-pattern>
+    </servlet-mapping>
     
     <!--
             Welcome File & Datasource
@@ -519,11 +559,5 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-    <resource-ref>
-        <description>Repository</description>
-        <res-ref-name>jdbc/repository</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-        <res-auth>Container</res-auth>
-    </resource-ref>
     
-    </web-app>
+</web-app>

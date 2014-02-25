@@ -91,6 +91,8 @@
             <li><b>AutoCompleteCustomer</b> Get Auto Complete Customer Infos, required BASE64 values for parameter URL: <a href="/gateway/exec/AutoCompleteCustomer?cunm=">/gateway/exec/AutoCompleteCustomer?cunm=</a>
             <li><b>GetCustomerRole</b> - Get Role Customer Mapping URL: <a href="/gateway/exec/GetCustomerRole">/gateway/exec/GetCustomerRole</a></li>
             <li><b>GetContractRole</b> - Get Role Contract Mapping URL: <a href="/gateway/exec/GetContractRole">/gateway/exec/GetContractRole</a></li>
+            <li><b>UpdateCustomerRole</b> - Update Customer with Role URL: <a href="/gateway/exec/UpdateCustomerRole?cuid=&rlid=">/gateway/exec/UpdateCustomerRole?cuid=&rlid=</a></li>
+            <li><b>UpdateContractRole</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateContractRole?ccid=&rlid=">/gateway/exec/UpdateContractRole?ccid=&rlid=</a></li>
         </ul>
         </font>
         <br></br>        
@@ -119,6 +121,9 @@
             <li><b>GetHostCustomer</b> - Get Host Customer Mapping URL: <a href="/gateway/monitoring/GetHostCustomer">/gateway/monitoring/GetHostCustomer</a></li>
             <li><b>GetHostContract</b> - Get Host Contract Mapping URL: <a href="/gateway/monitoring/GetHostContract">/gateway/monitoring/GetHostContract</a></li>
             <li><b>GetHostRole</b> - Get Host Role Mapping URL: <a href="/gateway/monitoring/GetHostRole">/gateway/monitoring/GetHostRole</a></li>
+            <li><b>UpdateHostRole</b> - Update Customer with Role URL: <a href="/gateway/exec/UpdateHostRole?hstid=&rlid=">/gateway/exec/UpdateHostRole?hstid=&rlid=</a></li>
+            <li><b>UpdateHostCustomer</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateHostCustomer?hstid=&cuid=">/gateway/exec/UpdateHostCustomer?hstid=&cuid=</a></li>
+            <li><b>UpdateHostContract</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateHostContract?hstid=&ccid=">/gateway/exec/UpdateHostContract?hstid=&ccid=</a></li>
         </ul>
         </font>
         <br></br>

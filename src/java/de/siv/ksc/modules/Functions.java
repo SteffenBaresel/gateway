@@ -565,7 +565,7 @@ public class Functions {
          * Update
          */
         if (rs.next()) {
-            PreparedStatement psD = cn.prepareStatement("DELETE FROM profiles_role_priv_mapping WHERE rlid? AND prid=?");
+            PreparedStatement psD = cn.prepareStatement("DELETE FROM profiles_role_priv_mapping WHERE rlid=? AND prid=?");
             psD.setInt(1,Integer.parseInt(Rlid));
             psD.setInt(2,Integer.parseInt(Prid));
             psD.executeUpdate();
@@ -880,21 +880,36 @@ public class Functions {
         return out;
     }
     
-    static public String GetCustomer() throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String GetCustomer(String Uid) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
         
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
         
-        PreparedStatement ps = cn.prepareStatement("SELECT cuid,cunr,decode(cunm,'base64'),decode(cuaddr,'base64'),decode(cumail,'base64'),decode(cueskmail,'base64'),decode(cucomm,'base64') FROM managed_service_cinfo ORDER BY 3");
+        String sqlGC = " SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, profiles_customer_role_mapping e WHERE a.cuid=e.cuid AND ( " + sor + " ) ORDER BY 3";
+        PreparedStatement ps = cn.prepareStatement(sqlGC);
         ResultSet rs = ps.executeQuery();
         
         String out = "{\"CUSTOMER\":[";
         while (rs.next()) { 
-            //Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) )
             out += "{\"CUID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"CUADDR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(4) ) ) + "\",\"CUMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(5) ) ) + "\",\"CUESKMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(6) ) ) + "\",\"CUCOMM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(7) ) ) + "\"},";
         }
         out = out.substring(0, out.length()-1);
@@ -930,10 +945,25 @@ public class Functions {
         return replace;
     }
     
-    static public String GetSingleCustomer(String cuid) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String GetSingleCustomer(String Uid, String cuid) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
         
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
@@ -943,7 +973,8 @@ public class Functions {
          * Get Customer Info
          */
         
-        PreparedStatement ps = cn.prepareStatement("SELECT cuid,cunr,decode(cunm,'base64'),decode(cuaddr,'base64'),decode(cumail,'base64'),decode(cueskmail,'base64'),decode(cucomm,'base64') FROM managed_service_cinfo WHERE cuid=?");
+        String sqlSC = "SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, profiles_customer_role_mapping e WHERE a.cuid=e.cuid AND ( " + sor + " ) AND a.cuid=?";
+        PreparedStatement ps = cn.prepareStatement(sqlSC);
         ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ResultSet rs = ps.executeQuery();
         
@@ -958,7 +989,8 @@ public class Functions {
          * Get Customer Contracts
          */
         
-        PreparedStatement ps2 = cn.prepareStatement("select a.ccid,a.ccnr,decode(a.ccprve,'base64'),decode(a.ccprdc,'base64'),decode(b.cotrsn,'base64'),decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b where a.cttyid=b.cttyid and a.cuid=?");
+        String sqlSCC = "select a.ccid,a.ccnr,decode(a.ccprve,'base64'),decode(a.ccprdc,'base64'),decode(b.cotrsn,'base64'),decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b,profiles_contract_role_mapping e where a.cttyid=b.cttyid AND a.ccid=e.ccid AND ( " + sor + " ) AND a.cuid=?";
+        PreparedStatement ps2 = cn.prepareStatement(sqlSCC);
         ps2.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ResultSet rs2 = ps2.executeQuery();
         
@@ -1150,16 +1182,32 @@ public class Functions {
         return replace;
     }
     
-    static public String GetCustomerContractNumbers(String cuid) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String GetCustomerContractNumbers(String Uid, String cuid) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
         
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
         
-        PreparedStatement ps = cn.prepareStatement("select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b where a.cttyid=b.cttyid AND a.cuid=?");
+        String sqlCCN = "select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b,profiles_contract_role_mapping e where a.cttyid=b.cttyid and a.ccid=e.ccid and ( " + sor + " ) AND a.cuid=?";
+        PreparedStatement ps = cn.prepareStatement(sqlCCN);
         ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ResultSet rs = ps.executeQuery();
         
@@ -1484,23 +1532,40 @@ public class Functions {
         return out;
     }
     
-    static public String GetServiceEntry(String Uuid, String Offset, String Limit) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String GetServiceEntry(String Uid, String Uuid, String Offset, String Limit) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "f.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
         String out = null;
         String count = null;
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository");
         Connection cn = ds.getConnection();
         
-        PreparedStatement psC = cn.prepareStatement("select count(*) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid");
+        String sqlC = "select count(*) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e, profiles_contract_role_mapping f where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid and d.ccid=f.ccid and ( " + sor + " )";
+        PreparedStatement psC = cn.prepareStatement(sqlC);
         ResultSet rsC = psC.executeQuery();
         
         if ( rsC.next() ) { count = rsC.getString( 1 ); }
         
-        
-        PreparedStatement ps = cn.prepareStatement("select decode(c.usdc,'base64'),decode(c.usnm,'base64'),d.ccnr,decode(e.cotrln,'base64'),decode(b.cunm,'base64'),decode(a.comt,'base64'),a.delay,a.utim,a.esk,bit_length(c.upic) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid order by a.msid DESC offset ? limit ?");
+        String sqlSE = "select decode(c.usdc,'base64'),decode(c.usnm,'base64'),d.ccnr,decode(e.cotrln,'base64'),decode(b.cunm,'base64'),decode(a.comt,'base64'),a.delay,a.utim,a.esk,bit_length(c.upic) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e, profiles_contract_role_mapping f where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid and d.ccid=f.ccid and ( " + sor + " ) order by a.msid DESC offset ? limit ?";
+        PreparedStatement ps = cn.prepareStatement(sqlSE);
         ps.setInt(1, Integer.parseInt( Base64Coder.decodeString( Offset ) ));
         ps.setInt(2, Integer.parseInt( Base64Coder.decodeString( Limit ) ));
         ResultSet rs = ps.executeQuery();
@@ -1679,7 +1744,7 @@ public class Functions {
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
-        PreparedStatement ps = cn.prepareStatement("SELECT cuid,grid FROM profiles_customer_role_mapping WHERE cuid=? AND rlid=?");
+        PreparedStatement ps = cn.prepareStatement("SELECT cuid,rlid FROM profiles_customer_role_mapping WHERE cuid=? AND rlid=?");
         ps.setInt(1,Integer.parseInt(Cuid));
         ps.setInt(2,Integer.parseInt(Rlid));
         ResultSet rs = ps.executeQuery();
@@ -1704,5 +1769,20 @@ public class Functions {
          */
         cn.close();
         return out;
+    }
+    
+    /*
+     * Get User Roles
+     */
+    
+    static public ResultSet GetUserRoles(String Uid) throws FileNotFoundException, IOException, NamingException, SQLException {
+        Context ctxR = new InitialContext(); 
+        DataSource dsR  = (DataSource) ctxR.lookup("jdbc/repository");
+        Connection cnR = dsR.getConnection(); 
+        PreparedStatement psUro = cnR.prepareStatement("select a.rlid from profiles_group_role_mapping a, profiles_user_group_mapping b, profiles_user c where a.grid=b.grid and b.uuid=c.uuid and c.usnm=?");
+        psUro.setString(1,Base64Coder.encodeString( Uid ));
+        ResultSet rsUro = psUro.executeQuery();
+        cnR.close();
+        return rsUro;
     }
 }

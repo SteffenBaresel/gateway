@@ -27,7 +27,7 @@ public class GetCustomerContractNumbers extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cuid, String hstid)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String cuid, String hstid)
             throws ServletException, IOException {
         try {
             if (props == null) {
@@ -38,7 +38,7 @@ public class GetCustomerContractNumbers extends HttpServlet {
             response.addHeader("Access-Control-Allow-Methods", "*");
             response.setContentType("application/json; charset=utf-8");
             PrintWriter out = response.getWriter(); 
-            out.println(Monitoring.GetCustomerContractNumbers(cuid,hstid));
+            out.println(Monitoring.GetCustomerContractNumbers(uid,cuid,hstid));
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(GetCustomerContractNumbers.class.getName()).log(Level.SEVERE, null, ex);
@@ -52,7 +52,13 @@ public class GetCustomerContractNumbers extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("cuid"), request.getParameter("hstid"));
+        String uid = null;
+        if (request.getParameter("user") == null) {
+            uid = request.getRemoteUser();
+        } else {
+            uid = request.getParameter("user");
+        }
+        processRequest(request, response, uid, request.getParameter("cuid"), request.getParameter("hstid"));
     }
 
     @Override

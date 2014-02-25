@@ -28,7 +28,7 @@ public class GetCustomer extends HttpServlet {
     Properties props = null;
     
     @SuppressWarnings("empty-statement")
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String hstid)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String hstid)
             throws ServletException, IOException {
         try {
             if (props == null) {
@@ -39,7 +39,7 @@ public class GetCustomer extends HttpServlet {
             response.addHeader("Access-Control-Allow-Methods", "*");
             response.setContentType("application/json; charset=utf-8");
             PrintWriter out = response.getWriter(); 
-            out.println(Monitoring.GetCustomer(hstid));
+            out.println(Monitoring.GetCustomer(uid,hstid));
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(GetCustomer.class.getName()).log(Level.SEVERE, null, ex);
@@ -53,7 +53,13 @@ public class GetCustomer extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("hstid"));
+        String uid = null;
+        if (request.getParameter("user") == null) {
+            uid = request.getRemoteUser();
+        } else {
+            uid = request.getParameter("user");
+        }
+        processRequest(request, response, uid, request.getParameter("hstid"));
     }
 
     @Override

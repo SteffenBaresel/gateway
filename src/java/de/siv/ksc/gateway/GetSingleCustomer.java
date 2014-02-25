@@ -27,7 +27,7 @@ public class GetSingleCustomer extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cuid)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String cuid)
             throws ServletException, IOException {
         try {
             if (props == null) {
@@ -38,7 +38,7 @@ public class GetSingleCustomer extends HttpServlet {
             response.addHeader("Access-Control-Allow-Methods", "*");
             response.setContentType("application/json; charset=utf-8");
             PrintWriter out = response.getWriter(); 
-            out.println(Functions.GetSingleCustomer(cuid));
+            out.println(Functions.GetSingleCustomer(uid,cuid));
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(GetSingleCustomer.class.getName()).log(Level.SEVERE, null, ex);
@@ -52,7 +52,13 @@ public class GetSingleCustomer extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response, request.getParameter("cuid"));
+        String uid = null;
+        if (request.getParameter("user") == null) {
+            uid = request.getRemoteUser();
+        } else {
+            uid = request.getParameter("user");
+        }
+        processRequest(request, response, uid, request.getParameter("cuid"));
     }
 
     @Override

@@ -32,14 +32,32 @@ public class Monitoring {
             props = Basics.getConfiguration();
         }
         String line = "";
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/monitoring");
         Connection cn = ds.getConnection(); 
         /*
          * Host Status
          */
+        
+        String sql1 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid order by d.current_state DESC,a.hstid ASC";
         line = "{\"HOSTS\":[";
-        PreparedStatement psHst = cn.prepareStatement("select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid order by a.hstid ASC,d.current_state DESC");
+        PreparedStatement psHst = cn.prepareStatement(sql1);
         ResultSet rsHst = psHst.executeQuery();
         while ( rsHst.next() ) {
             line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsHst.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsHst.getString( 2 ) + "\",\"IP\":\"" + rsHst.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsHst.getString( 4 ) ) + "\",\"STATE\":\"" + rsHst.getString( 7 ) + "\",\"ACK\":\"" + rsHst.getString( 8 ) + "\",\"ACKID\":\"" + rsHst.getString( 9 ) + "\"},";
@@ -48,7 +66,9 @@ public class Monitoring {
         /*
          * Service Status
          */
-        PreparedStatement psSrv = cn.prepareStatement("select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid order by d.current_state DESC,c.srvid DESC");
+        
+        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid order by d.current_state DESC,c.srvid ASC";
+        PreparedStatement psSrv = cn.prepareStatement(sql2);
         ResultSet rsSrv = psSrv.executeQuery();
         while ( rsSrv.next() ) {
             line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsSrv.getString( 2 ) + "\",\"IP\":\"" + rsSrv.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsSrv.getString( 4 ) ) + "\",\"SRV_ID\":\"" + rsSrv.getString( 5 ) + "\",\"SRV_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 6 ) ) + "\",\"STATE\":\"" + rsSrv.getString( 7 ) + "\",\"ACK\":\"" + rsSrv.getString( 8 ) + "\",\"ACKID\":\"" + rsSrv.getString( 9 ) + "\"},";
@@ -58,7 +78,8 @@ public class Monitoring {
          * Host Taov
          */
         String up; up="0"; String down; down="0"; String unr; unr="0";
-        PreparedStatement psSlHst = cn.prepareStatement("select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b where a.srvid=b.srvid and b.srvna like 'SYSTEM_ICMP_REQUEST' group by a.current_state");
+        String sql3 = "select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b, monitoring_host_role_mapping e where a.srvid=b.srvid and b.srvna like 'SYSTEM_ICMP_REQUEST' and b.hstid=e.hstid and ( " + sor + " ) group by a.current_state";
+        PreparedStatement psSlHst = cn.prepareStatement(sql3);
         ResultSet rsSlHst = psSlHst.executeQuery();
         while ( rsSlHst.next() ) {
             if(rsSlHst.getString( 1 ).equals("1")) { down = rsSlHst.getString( 2 ); } else if (rsSlHst.getString( 1 ).equals("2")) { unr = rsSlHst.getString( 2 ); } else { up = rsSlHst.getString( 2 ); }
@@ -67,7 +88,8 @@ public class Monitoring {
          * Service Taov
          */
         String ok; ok="0"; String wa; wa="0"; String cr; cr="0"; String un; un="0";
-        PreparedStatement psSlSrv = cn.prepareStatement("select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b where a.srvid=b.srvid and b.srvna not like 'SYSTEM_ICMP_REQUEST' group by a.current_state");
+        String sql4 = "select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b, monitoring_host_role_mapping e where a.srvid=b.srvid and b.srvna not like 'SYSTEM_ICMP_REQUEST' and b.hstid=e.hstid and ( " + sor + " ) group by a.current_state";
+        PreparedStatement psSlSrv = cn.prepareStatement(sql4);
         ResultSet rsSlSrv = psSlSrv.executeQuery();
         while ( rsSlSrv.next() ) {
             if(rsSlSrv.getString( 1 ).equals("1")) { wa = rsSlSrv.getString( 2 ); } else if (rsSlSrv.getString( 1 ).equals("2")) { cr = rsSlSrv.getString( 2 ); } else if (rsSlSrv.getString( 1 ).equals("3")) { un = rsSlSrv.getString( 2 ); } else { ok = rsSlSrv.getString( 2 ); }
@@ -76,7 +98,8 @@ public class Monitoring {
          * Database Taov
          */
         Integer open; open=0; Integer stopped; stopped=0;
-        PreparedStatement psSlDB = cn.prepareStatement("select b.current_state,count(b.current_state) from monitoring_oracle_database_info a, monitoring_status b where a.srvid=b.srvid group by b.current_state");
+        String sql5 = "select b.current_state,count(b.current_state) from monitoring_oracle_database_info a, monitoring_status b, monitoring_host_role_mapping e where a.srvid=b.srvid and a.hstid=e.hstid and ( " + sor + " ) group by b.current_state";
+        PreparedStatement psSlDB = cn.prepareStatement(sql5);
         ResultSet rsSlDB = psSlDB.executeQuery();
         while ( rsSlDB.next() ) {
             if (rsSlDB.getInt( 1 ) == 0) { open = rsSlDB.getInt( 2 ); } else { stopped = stopped + rsSlDB.getInt( 2 ); };
@@ -85,7 +108,8 @@ public class Monitoring {
          * Middleware Taov
          */
         Integer online; online=0; Integer offline; offline=0;
-        PreparedStatement psSlMW = cn.prepareStatement("select b.current_state,count(b.current_state) from monitoring_oracle_middleware_info a, monitoring_status b where a.srvid=b.srvid group by b.current_state");
+        String sql6 = "select b.current_state,count(b.current_state) from monitoring_oracle_middleware_info a, monitoring_status b, monitoring_host_role_mapping e where a.srvid=b.srvid and a.hstid=e.hstid and ( " + sor + " ) group by b.current_state";
+        PreparedStatement psSlMW = cn.prepareStatement(sql6);
         ResultSet rsSlMW = psSlMW.executeQuery();
         while ( rsSlMW.next() ) {
             if (rsSlMW.getInt( 1 ) == 0) { online = rsSlMW.getInt( 2 ); } else { offline = offline + rsSlMW.getInt( 2 ); };
@@ -99,7 +123,8 @@ public class Monitoring {
          * Liveticker
          */
         long timestamp = (System.currentTimeMillis()/1000) - 1800;
-        PreparedStatement psLt = cn.prepareStatement("select a.hstln,b.hstid,c.srvna,b.srvid,b.state,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c where a.hstid=b.hstid and b.srvid=c.srvid and b.new_problem=1 and b.state>1 and b.created>? order by b.created desc");
+        String sql7 = "select a.hstln,b.hstid,c.srvna,b.srvid,b.state,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, monitoring_host_role_mapping e where a.hstid=b.hstid and b.srvid=c.srvid and a.hstid=e.hstid and ( " + sor + " ) and b.new_problem=1 and b.state>1 and b.created>? order by b.created desc";
+        PreparedStatement psLt = cn.prepareStatement(sql7);
         psLt.setLong(1,timestamp);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
@@ -116,6 +141,22 @@ public class Monitoring {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/monitoring");
         Connection cn = ds.getConnection(); 
@@ -124,7 +165,8 @@ public class Monitoring {
          */
         String line = "{\"LIVETICKER\":[";
         long timestamp = (System.currentTimeMillis()/1000) - 1800;
-        PreparedStatement psLt = cn.prepareStatement("select a.hstln,b.hstid,d.htypicon,d.htypln,c.srvna,b.srvid,b.state,b.output,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c,class_hosttypes d where a.hstid=b.hstid and b.srvid=c.srvid and a.htypid=d.htypid and b.new_problem=1 and b.state>1 and b.created>? order by b.created desc");
+        String sql8 = "select a.hstln,b.hstid,d.htypicon,d.htypln,c.srvna,b.srvid,b.state,b.output,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, class_hosttypes d, monitoring_host_role_mapping e where a.hstid=b.hstid and b.srvid=c.srvid and a.htypid=d.htypid and a.hstid=e.hstid and ( " + sor + " ) and b.new_problem=1 and b.state>1 and b.created>? order by b.created desc";
+        PreparedStatement psLt = cn.prepareStatement(sql8);
         psLt.setLong(1,timestamp);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
@@ -141,6 +183,22 @@ public class Monitoring {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/monitoring");
         Connection cn = ds.getConnection(); 
@@ -149,7 +207,8 @@ public class Monitoring {
          * Monitoring Info
          */
         String line = "[";
-        PreparedStatement psLt = cn.prepareStatement("select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,d.output,d.created,a.instid,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid order by a.hstln ASC,d.current_state DESC,c.srvid DESC");
+        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,d.output,d.created,a.instid,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
+        PreparedStatement psLt = cn.prepareStatement(sql9);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
             if (rsLt.getString( 1 ).equals(tmphn)) { } else { line = line.substring(0, line.length()-1); line+= "]},{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_ADDRESS\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"SERVICES\":["; }
@@ -198,7 +257,7 @@ public class Monitoring {
          * Service History
          */
         String line = "[";
-        PreparedStatement psLt = cn.prepareStatement("select a.srvna,b.current_state,b.output,b.perf_data,b.created from monitoring_info_service a, monitoring_status_history b where a.srvid=b.srvid and a.srvid=? and b.created>? order by b.created desc");
+        PreparedStatement psLt = cn.prepareStatement("select a.srvna,b.current_state,b.output,b.perf_data,b.created from monitoring_info_service a, monitoring_status_history b where a.srvid=b.srvid and a.srvid=? and b.created>? order by b.created desc limit 50");
         psLt.setInt(1,Srvid);
         psLt.setLong(2,timestamp);
         ResultSet rsLt = psLt.executeQuery();
@@ -279,10 +338,25 @@ public class Monitoring {
      * Customer
      */
     
-    static public String GetCustomer(String Hstid) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String GetCustomer(String Uid, String Hstid) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
         
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
@@ -292,7 +366,8 @@ public class Monitoring {
          * Select if host is already assigned to a Customer 
          */
         
-        PreparedStatement ps = cn.prepareStatement("SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, monitoring_host_customer_mapping b WHERE a.cuid=b.cuid AND b.hstid=? ORDER BY 3");
+        String sqlGC = "SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, monitoring_host_customer_mapping b, profiles_customer_role_mapping e WHERE a.cuid=b.cuid AND a.cuid=e.cuid AND ( " + sor + " ) AND b.hstid=? ORDER BY 3";
+        PreparedStatement ps = cn.prepareStatement(sqlGC);
         ps.setInt(1,Integer.parseInt( Hstid ));
         ResultSet rs = ps.executeQuery();
         
@@ -301,11 +376,10 @@ public class Monitoring {
             out += "{\"CUID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"CUADDR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(4) ) ) + "\",\"CUMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(5) ) ) + "\",\"CUESKMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(6) ) ) + "\",\"CUCOMM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(7) ) ) + "\"},";
             out = out.substring(0, out.length()-1);
         } else {
-            PreparedStatement ps2 = cn.prepareStatement("SELECT cuid,cunr,decode(cunm,'base64'),decode(cuaddr,'base64'),decode(cumail,'base64'),decode(cueskmail,'base64'),decode(cucomm,'base64') FROM managed_service_cinfo ORDER BY 3");
+            String sqlGCC = "SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, profiles_customer_role_mapping e WHERE a.cuid=e.cuid AND ( " + sor + " ) ORDER BY 3";
+            PreparedStatement ps2 = cn.prepareStatement(sqlGCC);
             ResultSet rs2 = ps2.executeQuery();
-        
             while (rs2.next()) { 
-                //Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) )
                 out += "{\"CUID\":\"" + Base64Coder.encodeString( rs2.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rs2.getString(2) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(3) ) ) + "\",\"CUADDR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(4) ) ) + "\",\"CUMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(5) ) ) + "\",\"CUESKMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(6) ) ) + "\",\"CUCOMM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(7) ) ) + "\"},";
             }
             out = out.substring(0, out.length()-1);
@@ -317,16 +391,32 @@ public class Monitoring {
         return replace;
     }
     
-    static public String GetCustomerContractNumbers(String cuid, String hstid) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String GetCustomerContractNumbers(String Uid, String cuid, String hstid) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
         
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
         
-        PreparedStatement ps = cn.prepareStatement("select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b, monitoring_host_contract_mapping c where a.cttyid=b.cttyid AND a.ccid=c.ccid AND a.cuid=? AND c.hstid=?");
+        String sqlCCN = "select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b, monitoring_host_contract_mapping c,profiles_contract_role_mapping e where a.cttyid=b.cttyid AND a.ccid=c.ccid AND a.ccid=e.ccid AND ( " + sor + " ) AND a.cuid=? AND c.hstid=?";
+        PreparedStatement ps = cn.prepareStatement(sqlCCN);
         ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ps.setInt(2,Integer.parseInt( hstid ));
         ResultSet rs = ps.executeQuery();
@@ -337,7 +427,8 @@ public class Monitoring {
             out += "{\"CCID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"CCNR\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"COTRLN\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\"},";
             out = out.substring(0, out.length()-1);
         } else {
-            PreparedStatement ps2 = cn.prepareStatement("select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b where a.cttyid=b.cttyid AND a.cuid=?");
+            String sqlCCNN = "select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b,profiles_contract_role_mapping e where a.cttyid=b.cttyid AND a.ccid=e.ccid AND ( " + sor + " ) AND a.cuid=?";
+            PreparedStatement ps2 = cn.prepareStatement(sqlCCNN);
             ps2.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
             ResultSet rs2 = ps2.executeQuery();
 
@@ -657,10 +748,15 @@ public class Monitoring {
             props = Basics.getConfiguration();
         }
         String out = "0";
+        
+        /*
+         * Repository
+         */
+        
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
-        PreparedStatement ps = cn.prepareStatement("SELECT hstid,rlid FROM profiles_user_group_mapping WHERE hstid=? AND rlid=?");
+        PreparedStatement ps = cn.prepareStatement("SELECT hstid,rlid FROM monitoring_host_role_mapping WHERE hstid=? AND rlid=?");
         ps.setInt(1,Integer.parseInt(Hstid));
         ps.setInt(2,Integer.parseInt(Rlid));
         ResultSet rs = ps.executeQuery();
@@ -668,13 +764,13 @@ public class Monitoring {
          * Update
          */
         if (rs.next()) {
-            PreparedStatement psD = cn.prepareStatement("DELETE FROM profiles_user_group_mapping WHERE hstid=? AND rlid=?");
+            PreparedStatement psD = cn.prepareStatement("DELETE FROM monitoring_host_role_mapping WHERE hstid=? AND rlid=?");
             psD.setInt(1,Integer.parseInt(Hstid));
             psD.setInt(2,Integer.parseInt(Rlid));
             psD.executeUpdate();
             out = "1";
         } else {
-            PreparedStatement psD = cn.prepareStatement("INSERT INTO profiles_user_group_mapping (HSTID,RLID) VALUES (?,?)");
+            PreparedStatement psD = cn.prepareStatement("INSERT INTO monitoring_host_role_mapping (HSTID,RLID) VALUES (?,?)");
             psD.setInt(1,Integer.parseInt(Hstid));
             psD.setInt(2,Integer.parseInt(Rlid));
             psD.executeUpdate();
@@ -684,6 +780,41 @@ public class Monitoring {
          * Close Connection
          */
         cn.close();
+        
+        
+        
+        /*
+         * Monitoring
+         */
+        
+        Context ctxM = new InitialContext(); 
+        DataSource dsM  = (DataSource) ctxM.lookup("jdbc/monitoring"); 
+        Connection cnM = dsM.getConnection(); 
+        PreparedStatement psM = cnM.prepareStatement("SELECT hstid,rlid FROM monitoring_host_role_mapping WHERE hstid=? AND rlid=?");
+        psM.setInt(1,Integer.parseInt(Hstid));
+        psM.setInt(2,Integer.parseInt(Rlid));
+        ResultSet rsM = psM.executeQuery();
+        /*
+         * Update
+         */
+        if (rsM.next()) {
+            PreparedStatement psDM = cnM.prepareStatement("DELETE FROM monitoring_host_role_mapping WHERE hstid=? AND rlid=?");
+            psDM.setInt(1,Integer.parseInt(Hstid));
+            psDM.setInt(2,Integer.parseInt(Rlid));
+            psDM.executeUpdate();
+            out = "1";
+        } else {
+            PreparedStatement psDM = cnM.prepareStatement("INSERT INTO monitoring_host_role_mapping (HSTID,RLID) VALUES (?,?)");
+            psDM.setInt(1,Integer.parseInt(Hstid));
+            psDM.setInt(2,Integer.parseInt(Rlid));
+            psDM.executeUpdate();
+            out = "1";
+        }
+        /*
+         * Close Connection
+         */
+        cnM.close();
+        
         return out;
     }
     
@@ -695,7 +826,7 @@ public class Monitoring {
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
-        PreparedStatement ps = cn.prepareStatement("SELECT hstid,cuid FROM profiles_host_customer_mapping WHERE hstid=? AND cuid=?");
+        PreparedStatement ps = cn.prepareStatement("SELECT hstid,cuid FROM monitoring_host_customer_mapping WHERE hstid=? AND cuid=?");
         ps.setInt(1,Integer.parseInt(Hstid));
         ps.setInt(2,Integer.parseInt(Cuid));
         ResultSet rs = ps.executeQuery();
@@ -703,13 +834,13 @@ public class Monitoring {
          * Update
          */
         if (rs.next()) {
-            PreparedStatement psD = cn.prepareStatement("DELETE FROM profiles_host_customer_mapping WHERE hstid=? AND cuid=?");
+            PreparedStatement psD = cn.prepareStatement("DELETE FROM monitoring_host_customer_mapping WHERE hstid=? AND cuid=?");
             psD.setInt(1,Integer.parseInt(Hstid));
             psD.setInt(2,Integer.parseInt(Cuid));
             psD.executeUpdate();
             out = "1";
         } else {
-            PreparedStatement psD = cn.prepareStatement("INSERT INTO profiles_host_customer_mapping (HSTID,CUID) VALUES (?,?)");
+            PreparedStatement psD = cn.prepareStatement("INSERT INTO monitoring_host_customer_mapping (HSTID,CUID) VALUES (?,?)");
             psD.setInt(1,Integer.parseInt(Hstid));
             psD.setInt(2,Integer.parseInt(Cuid));
             psD.executeUpdate();
@@ -730,7 +861,7 @@ public class Monitoring {
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
-        PreparedStatement ps = cn.prepareStatement("SELECT hstid,ccid FROM profiles_host_contract_mapping WHERE hstid=? AND ccid=?");
+        PreparedStatement ps = cn.prepareStatement("SELECT hstid,ccid FROM monitoring_host_contract_mapping WHERE hstid=? AND ccid=?");
         ps.setInt(1,Integer.parseInt(Hstid));
         ps.setInt(2,Integer.parseInt(Ccid));
         ResultSet rs = ps.executeQuery();
@@ -738,13 +869,13 @@ public class Monitoring {
          * Update
          */
         if (rs.next()) {
-            PreparedStatement psD = cn.prepareStatement("DELETE FROM profiles_host_contract_mapping WHERE hstid=? AND ccid=?");
+            PreparedStatement psD = cn.prepareStatement("DELETE FROM monitoring_host_contract_mapping WHERE hstid=? AND ccid=?");
             psD.setInt(1,Integer.parseInt(Hstid));
             psD.setInt(2,Integer.parseInt(Ccid));
             psD.executeUpdate();
             out = "1";
         } else {
-            PreparedStatement psD = cn.prepareStatement("INSERT INTO profiles_host_contract_mapping (HSTID,CCID) VALUES (?,?)");
+            PreparedStatement psD = cn.prepareStatement("INSERT INTO monitoring_host_contract_mapping (HSTID,CCID) VALUES (?,?)");
             psD.setInt(1,Integer.parseInt(Hstid));
             psD.setInt(2,Integer.parseInt(Ccid));
             psD.executeUpdate();
