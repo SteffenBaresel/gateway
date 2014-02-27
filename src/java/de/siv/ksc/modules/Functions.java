@@ -62,6 +62,22 @@ public class Functions {
         cn.close();
     }
     
+    static public void ResetDashboard(String Uid) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        PreparedStatement psD = cn.prepareStatement("DELETE FROM config_portal WHERE mod=encode('DASHBOARD','base64') AND uuid IN ( SELECT uuid FROM profiles_user WHERE usnm=? )");
+        psD.setString(1,Base64Coder.encodeString( Uid ));
+        psD.executeUpdate(); 
+        /*
+         * Close Connection
+         */
+        cn.close();
+    }
+    
     static public String GetUserConfig(String Uid) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();

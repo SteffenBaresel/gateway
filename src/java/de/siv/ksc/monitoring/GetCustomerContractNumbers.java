@@ -38,7 +38,12 @@ public class GetCustomerContractNumbers extends HttpServlet {
             response.addHeader("Access-Control-Allow-Methods", "*");
             response.setContentType("application/json; charset=utf-8");
             PrintWriter out = response.getWriter(); 
-            out.println(Monitoring.GetCustomerContractNumbers(uid,cuid,hstid));
+            
+            if(!"undefined".equals(hstid)) {
+                out.println(Monitoring.GetCustomerContractNumbers(uid,cuid,hstid));
+            } else {
+                out.println(Monitoring.GetCustomerContractNumbersWOH(uid,cuid));
+            }
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(GetCustomerContractNumbers.class.getName()).log(Level.SEVERE, null, ex);

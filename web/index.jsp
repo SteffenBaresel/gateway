@@ -16,7 +16,7 @@
         <center>
             <h2>kVASy&reg; System Control - Gateway Engine 3.0.140205</h2>
             <p>
-                <font size=2>Entwicklungslinie 3 Build 2014.02<!-- Author: Steffen Baresel --></font>
+                <font size=2>Entwicklungslinie 3 Build 2014.02</font>
             </p>
         </center>
         <div>
@@ -93,6 +93,7 @@
             <li><b>GetContractRole</b> - Get Role Contract Mapping URL: <a href="/gateway/exec/GetContractRole">/gateway/exec/GetContractRole</a></li>
             <li><b>UpdateCustomerRole</b> - Update Customer with Role URL: <a href="/gateway/exec/UpdateCustomerRole?cuid=&rlid=">/gateway/exec/UpdateCustomerRole?cuid=&rlid=</a></li>
             <li><b>UpdateContractRole</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateContractRole?ccid=&rlid=">/gateway/exec/UpdateContractRole?ccid=&rlid=</a></li>
+            <li><b>ResetDashboard</b> - Reset Dashboard Configuration URL: <a href="/gateway/exec/ResetDashboard">/gateway/exec/ResetDashboard</a></li>
         </ul>
         </font>
         <br></br>        
@@ -124,10 +125,11 @@
             <li><b>UpdateHostRole</b> - Update Customer with Role URL: <a href="/gateway/exec/UpdateHostRole?hstid=&rlid=">/gateway/exec/UpdateHostRole?hstid=&rlid=</a></li>
             <li><b>UpdateHostCustomer</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateHostCustomer?hstid=&cuid=">/gateway/exec/UpdateHostCustomer?hstid=&cuid=</a></li>
             <li><b>UpdateHostContract</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateHostContract?hstid=&ccid=">/gateway/exec/UpdateHostContract?hstid=&ccid=</a></li>
+            <li><b>ServiceDowntime</b> Downtime Service, required BASE64 values for parameter URL: <a href="/gateway/monitoring/ServiceDowntime?hstid=&srvid=&instid=&cuid=&ccid=&dstart=&dend=&comment=">/gateway/monitoring/ServiceDowntime?hstid=&srvid=&instid=&cuid=&ccid=&dstart=&dend=&comment=</a>
         </ul>
         </font>
         <br></br>
         <hr>
-        <center><font size="1"><b>SIV.AG &copy;2014</b></font></center>
+        <center><font size="1"><b><br>2014 Steffen Baresel</b></font></center>
     </body>
 </html>

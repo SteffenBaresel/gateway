@@ -403,6 +403,14 @@
         <servlet-name>UpdateContractRole</servlet-name>
         <url-pattern>/exec/UpdateContractRole</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>ResetDashboard</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.ResetDashboard</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ResetDashboard</servlet-name>
+        <url-pattern>/exec/ResetDashboard</url-pattern>
+    </servlet-mapping>
     
     <!--
             Monitoring Servlets
@@ -551,6 +559,14 @@
     <servlet-mapping>
         <servlet-name>UpdateHostContract</servlet-name>
         <url-pattern>/monitoring/UpdateHostContract</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ServiceDowntime</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.ServiceDowntime</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServiceDowntime</servlet-name>
+        <url-pattern>/monitoring/ServiceDowntime</url-pattern>
     </servlet-mapping>
     
     <!--

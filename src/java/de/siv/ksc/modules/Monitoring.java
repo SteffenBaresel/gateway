@@ -55,23 +55,23 @@ public class Monitoring {
          * Host Status
          */
         
-        String sql1 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid order by d.current_state DESC,a.hstid ASC";
+        String sql1 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,a.hstid ASC";
         line = "{\"HOSTS\":[";
         PreparedStatement psHst = cn.prepareStatement(sql1);
         ResultSet rsHst = psHst.executeQuery();
         while ( rsHst.next() ) {
-            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsHst.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsHst.getString( 2 ) + "\",\"IP\":\"" + rsHst.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsHst.getString( 4 ) ) + "\",\"STATE\":\"" + rsHst.getString( 7 ) + "\",\"ACK\":\"" + rsHst.getString( 8 ) + "\",\"ACKID\":\"" + rsHst.getString( 9 ) + "\"},";
+            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsHst.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsHst.getString( 2 ) + "\",\"IP\":\"" + rsHst.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsHst.getString( 4 ) ) + "\",\"STATE\":\"" + rsHst.getString( 7 ) + "\",\"ACK\":\"" + rsHst.getString( 8 ) + "\",\"ACKID\":\"" + rsHst.getString( 9 ) + "\",\"INSTID\":\"" + rsHst.getString( 10 ) + "\"},";
         }
         line = line.substring(0, line.length()-1); line+= "],\"SERVICES\":[";
         /*
          * Service Status
          */
         
-        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid order by d.current_state DESC,c.srvid ASC";
+        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,c.srvid ASC";
         PreparedStatement psSrv = cn.prepareStatement(sql2);
         ResultSet rsSrv = psSrv.executeQuery();
         while ( rsSrv.next() ) {
-            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsSrv.getString( 2 ) + "\",\"IP\":\"" + rsSrv.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsSrv.getString( 4 ) ) + "\",\"SRV_ID\":\"" + rsSrv.getString( 5 ) + "\",\"SRV_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 6 ) ) + "\",\"STATE\":\"" + rsSrv.getString( 7 ) + "\",\"ACK\":\"" + rsSrv.getString( 8 ) + "\",\"ACKID\":\"" + rsSrv.getString( 9 ) + "\"},";
+            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsSrv.getString( 2 ) + "\",\"IP\":\"" + rsSrv.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsSrv.getString( 4 ) ) + "\",\"SRV_ID\":\"" + rsSrv.getString( 5 ) + "\",\"SRV_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 6 ) ) + "\",\"STATE\":\"" + rsSrv.getString( 7 ) + "\",\"ACK\":\"" + rsSrv.getString( 8 ) + "\",\"ACKID\":\"" + rsSrv.getString( 9 ) + "\",\"INSTID\":\"" + rsSrv.getString( 10 ) + "\"},";
         }
         line = line.substring(0, line.length()-1); line+= "],";
         /*
@@ -444,6 +444,58 @@ public class Monitoring {
         return replace;
     }
     
+    static public String GetCustomerContractNumbersWOH(String Uid, String cuid) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        
+        String sqlCCN = "select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b, monitoring_host_contract_mapping c,profiles_contract_role_mapping e where a.cttyid=b.cttyid AND a.ccid=c.ccid AND a.ccid=e.ccid AND ( " + sor + " ) AND a.cuid=?";
+        PreparedStatement ps = cn.prepareStatement(sqlCCN);
+        ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
+        ResultSet rs = ps.executeQuery();
+
+        String out = "{\"CONTRACT\":[";
+        
+        if(rs.next()) {
+            out += "{\"CCID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"CCNR\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"COTRLN\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\"},";
+            out = out.substring(0, out.length()-1);
+        } else {
+            String sqlCCNN = "select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b,profiles_contract_role_mapping e where a.cttyid=b.cttyid AND a.ccid=e.ccid AND ( " + sor + " ) AND a.cuid=?";
+            PreparedStatement ps2 = cn.prepareStatement(sqlCCNN);
+            ps2.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
+            ResultSet rs2 = ps2.executeQuery();
+
+            while (rs2.next()) { 
+                out += "{\"CCID\":\"" + Base64Coder.encodeString( rs2.getString(1) ) + "\",\"CCNR\":\"" + Base64Coder.encodeString( rs2.getString(2) ) + "\",\"COTRLN\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(3) ) ) + "\"},";
+            }
+            out = out.substring(0, out.length()-1);
+        }
+        out += "]}";
+        String replace = out.replace("\":]", "\":[]");
+        
+        cn.close();
+        return replace;
+    }
+    
     /*
      * Acknowledge Service Problem
      */
@@ -497,6 +549,10 @@ public class Monitoring {
         DataSource dsM  = (DataSource) ctxM.lookup("jdbc/monitoring"); 
         Connection cnM = dsM.getConnection(); 
         
+        /* rebuild comment */
+        String cor1 = Base64Coder.decodeString( co.replace("78", "+") );
+        String cor2 = Base64Coder.encodeString( cor1.substring(cor1.indexOf("--><hr>")+7) );
+        
         /* Insert Acknowledge Command to task Table */
         
         PreparedStatement psD = cnM.prepareStatement("insert into monitoring_task(type,hstid,srvid,done,usr,tsstart,tsend,comment,instid) values ('4',?,?,false,?,?,'0',?,?)");
@@ -504,8 +560,80 @@ public class Monitoring {
         psD.setInt(2,Integer.parseInt( Base64Coder.decodeString( srvid ) ));
         psD.setString(3, Base64Coder.encodeString(uuid) );
         psD.setInt(4,Integer.parseInt( Basics.ConvertDate( Base64Coder.decodeString( tm ) ) ));
-        psD.setString(5, co.replace("78", "+") );
+        psD.setString(5, cor2 );
         psD.setInt(6,Integer.parseInt( Base64Coder.decodeString( instid ) ));
+        psD.executeUpdate();
+        /*
+         * Close Repository Connection
+         */
+        cnM.close();
+        
+        return out;
+    }
+    
+    /*
+     * Acknowledge Service Problem
+     */
+    
+    static public String ServiceDowntime(String uuid, String hstid, String srvid, String instid, String cuid, String ccid, String dstart, String dend, String comment) throws FileNotFoundException, IOException, NamingException, SQLException, ParseException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        String out = "1";
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        
+        /* Check if host assigned to customer */
+        
+        PreparedStatement psHid = cn.prepareStatement("SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, monitoring_host_customer_mapping b WHERE a.cuid=b.cuid AND b.hstid=? ORDER BY 3");
+        psHid.setInt(1,Integer.parseInt( Base64Coder.decodeString( hstid ) ));
+        ResultSet rsHid = psHid.executeQuery();
+        
+        if (!rsHid.next()) {
+            PreparedStatement psIac = cn.prepareStatement("INSERT INTO monitoring_host_customer_mapping(HSTID,CUID) VALUES (?,?)");
+            psIac.setInt(1, Integer.parseInt( Base64Coder.decodeString( hstid ) ));
+            psIac.setInt(2, Integer.parseInt( Base64Coder.decodeString( cuid ) ));
+            psIac.executeUpdate();
+        } 
+        
+        /* Check if host assigned to contract */
+        
+        PreparedStatement psSid = cn.prepareStatement("select a.ccid,a.ccnr,decode(b.cotrln,'base64') from managed_service_ccontracts a,class_contracttypes b, monitoring_host_contract_mapping c where a.cttyid=b.cttyid AND a.ccid=c.ccid AND a.cuid=? AND c.hstid=?");
+        psSid.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
+        psSid.setInt(2,Integer.parseInt( Base64Coder.decodeString( hstid ) ));
+        ResultSet rsSid = psSid.executeQuery();
+        
+        if (!rsSid.next()) {
+            PreparedStatement psSac = cn.prepareStatement("INSERT INTO monitoring_host_contract_mapping(HSTID,CCID) VALUES (?,?)");
+            psSac.setInt(1, Integer.parseInt( Base64Coder.decodeString( hstid ) ));
+            psSac.setInt(2, Integer.parseInt( Base64Coder.decodeString( ccid ) ));
+            psSac.executeUpdate();
+        }
+        
+        /*
+         * Close Repository Connection
+         */
+        cn.close();
+        
+        /*
+         * Open Monitoring Connection
+         */
+        
+        Context ctxM = new InitialContext(); 
+        DataSource dsM  = (DataSource) ctxM.lookup("jdbc/monitoring"); 
+        Connection cnM = dsM.getConnection(); 
+        
+        /* Insert Acknowledge Command to task Table */
+        
+        PreparedStatement psD = cnM.prepareStatement("insert into monitoring_task(type,hstid,srvid,done,usr,tsstart,tsend,comment,instid) values ('2',?,?,false,?,?,?,?,?)");
+        psD.setInt(1,Integer.parseInt( Base64Coder.decodeString( hstid ) ));
+        psD.setInt(2,Integer.parseInt( Base64Coder.decodeString( srvid ) ));
+        psD.setString(3, Base64Coder.encodeString(uuid) );
+        psD.setInt(4,Integer.parseInt( Basics.ConvertDate( Base64Coder.decodeString( dstart ) ) ));
+        psD.setInt(5,Integer.parseInt( Basics.ConvertDate( Base64Coder.decodeString( dend ) ) ));
+        psD.setString(6, comment.replace("78", "+") );
+        psD.setInt(7,Integer.parseInt( Base64Coder.decodeString( instid ) ));
         psD.executeUpdate();
         /*
          * Close Repository Connection
@@ -566,7 +694,7 @@ public class Monitoring {
         Connection cnM = dsM.getConnection();
         
         
-        PreparedStatement pscu = cnR.prepareStatement("SELECT cuid,decode(cunm,'base64'),cunr FROM managed_service_cinfo order by 3");
+        PreparedStatement pscu = cnR.prepareStatement("SELECT a.cuid,decode(a.cunm,'base64'),a.cunr FROM managed_service_cinfo a,profiles_customer_role_mapping e WHERE a.cuid=e.cuid order by 3");
         ResultSet cu = pscu.executeQuery();
         PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 2");
         ResultSet ht = psht.executeQuery();
@@ -630,7 +758,7 @@ public class Monitoring {
         Connection cnM = dsM.getConnection();
         
         
-        PreparedStatement pscu = cnR.prepareStatement("select a.ccid,decode(b.cotrln,'base64'),a.ccnr,decode(c.cunm,'base64') from managed_service_ccontracts a, class_contracttypes b, managed_service_cinfo c where a.cttyid=b.cttyid and a.cuid=c.cuid order by 3");
+        PreparedStatement pscu = cnR.prepareStatement("select a.ccid,decode(b.cotrln,'base64'),a.ccnr,decode(c.cunm,'base64') from managed_service_ccontracts a, class_contracttypes b, managed_service_cinfo c, profiles_contract_role_mapping e where a.cttyid=b.cttyid and a.cuid=c.cuid and a.ccid=e.ccid order by 3");
         ResultSet cu = pscu.executeQuery();
         PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 2");
         ResultSet ht = psht.executeQuery();
