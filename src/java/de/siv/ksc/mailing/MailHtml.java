@@ -57,7 +57,7 @@ public class MailHtml {
                 pass = rs.getString( 2 );
             }
         } 
-                
+          
         Properties mail=new Properties();
         mail.put("mail.smtp.auth", "true");
         mail.put("mail.smtp.starttls.enable", "true");
@@ -76,7 +76,7 @@ public class MailHtml {
         message.addRecipients(MimeMessage.RecipientType.CC, ccaddresses);
         message.setSubject(Basics.encodeHtml( Base64Coder.decodeString( subject ) ));
         
-        message.setText(Basics.encodeHtml( Base64Coder.decodeString( text ) ), "utf-8", "html");
+        message.setText(Basics.encodeHtml( "<font face=Arial size=2>" + Base64Coder.decodeString( text ) ), "utf-8", "html");
         
         transport.sendMessage(message, message.getAllRecipients());
         

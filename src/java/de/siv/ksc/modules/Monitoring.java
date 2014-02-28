@@ -55,19 +55,21 @@ public class Monitoring {
          * Host Status
          */
         
-        String sql1 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,a.hstid ASC";
+        /*String sql1 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,a.hstid ASC";
         line = "{\"HOSTS\":[";
         PreparedStatement psHst = cn.prepareStatement(sql1);
         ResultSet rsHst = psHst.executeQuery();
         while ( rsHst.next() ) {
             line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsHst.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsHst.getString( 2 ) + "\",\"IP\":\"" + rsHst.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsHst.getString( 4 ) ) + "\",\"STATE\":\"" + rsHst.getString( 7 ) + "\",\"ACK\":\"" + rsHst.getString( 8 ) + "\",\"ACKID\":\"" + rsHst.getString( 9 ) + "\",\"INSTID\":\"" + rsHst.getString( 10 ) + "\"},";
         }
-        line = line.substring(0, line.length()-1); line+= "],\"SERVICES\":[";
+        line = line.substring(0, line.length()-1); line+= "],\"SERVICES\":[";*/
+        line = "{\"SERVICES\":[";
         /*
          * Service Status
          */
         
-        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,c.srvid ASC";
+        //String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,c.srvid ASC";
+        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,c.srvid ASC";
         PreparedStatement psSrv = cn.prepareStatement(sql2);
         ResultSet rsSrv = psSrv.executeQuery();
         while ( rsSrv.next() ) {
@@ -77,18 +79,19 @@ public class Monitoring {
         /*
          * Host Taov
          */
-        String up; up="0"; String down; down="0"; String unr; unr="0";
+        /*String up; up="0"; String down; down="0"; String unr; unr="0";
         String sql3 = "select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b, monitoring_host_role_mapping e where a.srvid=b.srvid and b.srvna like 'SYSTEM_ICMP_REQUEST' and b.hstid=e.hstid and ( " + sor + " ) group by a.current_state";
         PreparedStatement psSlHst = cn.prepareStatement(sql3);
         ResultSet rsSlHst = psSlHst.executeQuery();
         while ( rsSlHst.next() ) {
             if(rsSlHst.getString( 1 ).equals("1")) { down = rsSlHst.getString( 2 ); } else if (rsSlHst.getString( 1 ).equals("2")) { unr = rsSlHst.getString( 2 ); } else { up = rsSlHst.getString( 2 ); }
-        }
+        }*/
         /*
          * Service Taov
          */
         String ok; ok="0"; String wa; wa="0"; String cr; cr="0"; String un; un="0";
-        String sql4 = "select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b, monitoring_host_role_mapping e where a.srvid=b.srvid and b.srvna not like 'SYSTEM_ICMP_REQUEST' and b.hstid=e.hstid and ( " + sor + " ) group by a.current_state";
+        //String sql4 = "select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b, monitoring_host_role_mapping e where a.srvid=b.srvid and b.srvna not like 'SYSTEM_ICMP_REQUEST' and b.hstid=e.hstid and ( " + sor + " ) group by a.current_state";
+        String sql4 = "select a.current_state,count(a.current_state) from monitoring_status a, monitoring_info_service b, monitoring_host_role_mapping e where a.srvid=b.srvid and b.hstid=e.hstid and ( " + sor + " ) group by a.current_state";
         PreparedStatement psSlSrv = cn.prepareStatement(sql4);
         ResultSet rsSlSrv = psSlSrv.executeQuery();
         while ( rsSlSrv.next() ) {
@@ -116,8 +119,8 @@ public class Monitoring {
         }
         
         
-        line+= "\"SLIMTAOV\":[{\"HOSTS\":[{\"UP\":\"" + up + "\",\"DOWN\":\"" + down + "\",\"UNREACHABLE\":\"" + unr + "\"}]},{\"SERVICES\":[{\"OK\":\"" + ok + "\",\"WARNING\":\"" + wa + "\",\"CRITICAL\":\"" + cr + "\",\"UNKNOWN\":\"" + un + "\"}]},{\"DATABASES\":[{\"OPEN\":\"" + open + "\",\"STOPPED\":\"" + stopped + "\"}]},{\"MIDDLEWARE\":[{\"ONLINE\":\"" + online + "\",\"OFFLINE\":\"" + offline + "\"}]}],\"LIVETICKER\":[";
-        
+        //line+= "\"SLIMTAOV\":[{\"HOSTS\":[{\"UP\":\"" + up + "\",\"DOWN\":\"" + down + "\",\"UNREACHABLE\":\"" + unr + "\"}]},{\"SERVICES\":[{\"OK\":\"" + ok + "\",\"WARNING\":\"" + wa + "\",\"CRITICAL\":\"" + cr + "\",\"UNKNOWN\":\"" + un + "\"}]},{\"DATABASES\":[{\"OPEN\":\"" + open + "\",\"STOPPED\":\"" + stopped + "\"}]},{\"MIDDLEWARE\":[{\"ONLINE\":\"" + online + "\",\"OFFLINE\":\"" + offline + "\"}]}],\"LIVETICKER\":[";
+        line+= "\"SLIMTAOV\":[{\"HOSTS\":[{}]},{\"SERVICES\":[{\"OK\":\"" + ok + "\",\"WARNING\":\"" + wa + "\",\"CRITICAL\":\"" + cr + "\",\"UNKNOWN\":\"" + un + "\"}]},{\"DATABASES\":[{\"OPEN\":\"" + open + "\",\"STOPPED\":\"" + stopped + "\"}]},{\"MIDDLEWARE\":[{\"ONLINE\":\"" + online + "\",\"OFFLINE\":\"" + offline + "\"}]}],\"LIVETICKER\":[";
         
         /*
          * Liveticker
