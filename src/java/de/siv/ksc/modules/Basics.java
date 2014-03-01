@@ -30,9 +30,9 @@ public class Basics {
     static public Properties getConfiguration() throws FileNotFoundException, IOException {
         Properties props;
         props = new Properties();
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream("C:\\config\\gateway.properties"));
-        props.load(in);
-        in.close(); 
+        //BufferedInputStream in = new BufferedInputStream(new FileInputStream("C:\\config\\gateway.properties"));
+        //props.load(in);
+        //in.close(); 
         return props;
     }
     
