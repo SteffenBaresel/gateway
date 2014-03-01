@@ -69,11 +69,11 @@ public class Monitoring {
          */
         
         //String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,c.srvid ASC";
-        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,c.srvid ASC";
+        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid,d.dtm,d.dtmid order by d.current_state DESC,c.srvid ASC";
         PreparedStatement psSrv = cn.prepareStatement(sql2);
         ResultSet rsSrv = psSrv.executeQuery();
         while ( rsSrv.next() ) {
-            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsSrv.getString( 2 ) + "\",\"IP\":\"" + rsSrv.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsSrv.getString( 4 ) ) + "\",\"SRV_ID\":\"" + rsSrv.getString( 5 ) + "\",\"SRV_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 6 ) ) + "\",\"STATE\":\"" + rsSrv.getString( 7 ) + "\",\"ACK\":\"" + rsSrv.getString( 8 ) + "\",\"ACKID\":\"" + rsSrv.getString( 9 ) + "\",\"INSTID\":\"" + rsSrv.getString( 10 ) + "\"},";
+            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsSrv.getString( 2 ) + "\",\"IP\":\"" + rsSrv.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsSrv.getString( 4 ) ) + "\",\"SRV_ID\":\"" + rsSrv.getString( 5 ) + "\",\"SRV_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 6 ) ) + "\",\"STATE\":\"" + rsSrv.getString( 7 ) + "\",\"ACK\":\"" + rsSrv.getString( 8 ) + "\",\"ACKID\":\"" + rsSrv.getString( 9 ) + "\",\"INSTID\":\"" + rsSrv.getString( 10 ) + "\",\"DTM\":\"" + rsSrv.getString( 11 ) + "\",\"DTMID\":\"" + rsSrv.getString( 12 ) + "\"},";
         }
         line = line.substring(0, line.length()-1); line+= "],";
         /*
@@ -126,7 +126,7 @@ public class Monitoring {
          * Liveticker
          */
         long timestamp = (System.currentTimeMillis()/1000) - 1800;
-        String sql7 = "select a.hstln,b.hstid,c.srvna,b.srvid,b.state,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, monitoring_host_role_mapping e where a.hstid=b.hstid and b.srvid=c.srvid and a.hstid=e.hstid and ( " + sor + " ) and b.new_problem=1 and b.state>1 and b.created>? order by b.created desc";
+        String sql7 = "select a.hstln,b.hstid,c.srvna,b.srvid,b.state,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.hstid=b.hstid and b.srvid=c.srvid and a.hstid=e.hstid and b.srvid=d.srvid and ( " + sor + " ) and b.new_problem=1 and d.ack=false and d.dtm=false and b.state>1 and b.created>? order by b.created desc";
         PreparedStatement psLt = cn.prepareStatement(sql7);
         psLt.setLong(1,timestamp);
         ResultSet rsLt = psLt.executeQuery();
@@ -168,7 +168,7 @@ public class Monitoring {
          */
         String line = "{\"LIVETICKER\":[";
         long timestamp = (System.currentTimeMillis()/1000) - 1800;
-        String sql8 = "select a.hstln,b.hstid,d.htypicon,d.htypln,c.srvna,b.srvid,b.state,b.output,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, class_hosttypes d, monitoring_host_role_mapping e where a.hstid=b.hstid and b.srvid=c.srvid and a.htypid=d.htypid and a.hstid=e.hstid and ( " + sor + " ) and b.new_problem=1 and b.state>1 and b.created>? order by b.created desc";
+        String sql8 = "select a.hstln,b.hstid,d.htypicon,d.htypln,c.srvna,b.srvid,b.state,b.output,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, class_hosttypes d, monitoring_host_role_mapping e, monitoring_status f where a.hstid=b.hstid and b.srvid=c.srvid and a.htypid=d.htypid and a.hstid=e.hstid and b.srvid=f.srvid and ( " + sor + " ) and b.new_problem=1 and f.ack=false and f.dtm=false and b.state>1 and b.created>? order by b.created desc";
         PreparedStatement psLt = cn.prepareStatement(sql8);
         psLt.setLong(1,timestamp);
         ResultSet rsLt = psLt.executeQuery();
@@ -210,12 +210,12 @@ public class Monitoring {
          * Monitoring Info
          */
         String line = "[";
-        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,d.output,d.created,a.instid,d.ack,d.ackid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
+        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,d.output,d.created,a.instid,d.ack,d.ackid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
         PreparedStatement psLt = cn.prepareStatement(sql9);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
             if (rsLt.getString( 1 ).equals(tmphn)) { } else { line = line.substring(0, line.length()-1); line+= "]},{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_ADDRESS\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"SERVICES\":["; }
-            line+= "{\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 7 ) ) + "\",\"STATE\":\"" + rsLt.getString( 8 ) + "\",\"OUTPUT\":\"" + rsLt.getString( 9 ) + "\",\"CREATED\":\"" + rsLt.getString( 10 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 10 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"ACK\":\"" + rsLt.getString( 12 ) + "\",\"ACKID\":\"" + rsLt.getString( 13 ) + "\"},";
+            line+= "{\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 7 ) ) + "\",\"STATE\":\"" + rsLt.getString( 8 ) + "\",\"OUTPUT\":\"" + rsLt.getString( 9 ) + "\",\"CREATED\":\"" + rsLt.getString( 10 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 10 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"ACK\":\"" + rsLt.getString( 12 ) + "\",\"ACKID\":\"" + rsLt.getString( 13 ) + "\",\"DTM\":\"" + rsLt.getString( 14 ) + "\",\"DTMID\":\"" + rsLt.getString( 15 ) + "\"},";
             tmphn = rsLt.getString( 1 );
         }
         line = line.substring(0, line.length()-1); line+= "]}"; line = line.substring(3);
