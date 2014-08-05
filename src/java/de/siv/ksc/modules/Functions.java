@@ -150,7 +150,7 @@ public class Functions {
         }
         
         Long ctime = System.currentTimeMillis()/1000;
-        Long stime = ctime - 3600; /* 1h zurück */
+        Long stime = ctime - 600; /* 10min zurück */
         
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
@@ -937,6 +937,48 @@ public class Functions {
         return replace;
     }
     
+    static public String GetCustomerServiceEntries(String Uid, String Cuid) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        
+        String sqlGC = "SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, profiles_customer_role_mapping e WHERE a.cuid=e.cuid AND ( " + sor + " ) AND a.cuid=? ORDER BY 3";
+        PreparedStatement ps = cn.prepareStatement(sqlGC);
+        ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( Cuid ) ));
+        ResultSet rs = ps.executeQuery();
+        
+        String out = "{\"CUSTOMER\":[";
+        while (rs.next()) { 
+            out += "{\"CUID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"CUADDR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(4) ) ) + "\",\"CUMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(5) ) ) + "\",\"CUESKMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(6) ) ) + "\",\"CUCOMM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(7) ) ) + "\"},";
+        }
+        out = out.substring(0, out.length()-1);
+        out += "]}";
+        
+        String replace = out.replace("\":]", "\":[]");
+        
+        cn.close();
+        return replace;
+    }
+    
     static public String AutoCompleteCustomer(String cunm) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
@@ -1524,10 +1566,14 @@ public class Functions {
         if (props == null) {
             props = Basics.getConfiguration();
         }
-        String out = "1";
+        String out = "";
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
-        Connection cn = ds.getConnection(); 
+        Connection cn = ds.getConnection();
+        
+        /* Bug 05 NumberFormatException */
+        Integer delay; if ( dl != null && !dl.isEmpty() ) { delay = Integer.parseInt( Base64Coder.decodeString( dl ) ); } else { delay = 0; }
+        Long etime; if ( tm != null && !tm.isEmpty() ) { etime = Basics.LongConvertDate( Base64Coder.decodeString( tm ) ); } else { etime = System.currentTimeMillis()/1000; }
         
         PreparedStatement ps = cn.prepareStatement("INSERT INTO managed_service_cservices(CUID,CCID,ENID,COMTID,UUID,COMT,DELAY,UTIM,ESK) VALUES (?,?,?,?,?,?,?,?,?)");
         ps.setInt(1, Integer.parseInt( Base64Coder.decodeString( cuid ) ));
@@ -1536,10 +1582,26 @@ public class Functions {
         ps.setInt(4, Integer.parseInt( Base64Coder.decodeString( comtid ) ));
         ps.setInt(5, Integer.parseInt( Base64Coder.decodeString( uuid ) ));
         ps.setString(6,co.replace("78", "+"));
-        ps.setInt(7, Integer.parseInt( Base64Coder.decodeString( dl ) ));
-        ps.setInt(8, Integer.parseInt( Basics.ConvertDate( Base64Coder.decodeString( tm ) ) ));
+        ps.setInt(7, delay);
+        ps.setLong(8, etime);
         ps.setInt(9, Integer.parseInt( Base64Coder.decodeString( esk ) ));
         ps.executeUpdate();
+        
+        /*
+         * Select msid
+         */
+        
+        PreparedStatement psC = cn.prepareStatement("SELECT msid FROM managed_service_cservices WHERE cuid=? AND ccid=? AND enid=? AND comtid=? AND uuid=? AND utim=? AND esk=?");
+        psC.setInt(1, Integer.parseInt( Base64Coder.decodeString( cuid ) ));
+        psC.setInt(2, Integer.parseInt( Base64Coder.decodeString( ccid ) ));
+        psC.setInt(3, 1);
+        psC.setInt(4, Integer.parseInt( Base64Coder.decodeString( comtid ) ));
+        psC.setInt(5, Integer.parseInt( Base64Coder.decodeString( uuid ) ));
+        psC.setInt(6, Integer.parseInt( Basics.ConvertDate( Base64Coder.decodeString( tm ) ) ));
+        psC.setInt(7, Integer.parseInt( Base64Coder.decodeString( esk ) ));
+        ResultSet rsC = psC.executeQuery();
+        
+        if ( rsC.next() ) { out = rsC.getString( 1 ); }
         
         /*
          * Close Connection
@@ -1582,8 +1644,58 @@ public class Functions {
         
         String sqlSE = "select decode(c.usdc,'base64'),decode(c.usnm,'base64'),d.ccnr,decode(e.cotrln,'base64'),decode(b.cunm,'base64'),decode(a.comt,'base64'),a.delay,a.utim,a.esk,bit_length(c.upic) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e, profiles_contract_role_mapping f where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid and d.ccid=f.ccid and ( " + sor + " ) order by a.msid DESC offset ? limit ?";
         PreparedStatement ps = cn.prepareStatement(sqlSE);
-        ps.setInt(1, Integer.parseInt( Base64Coder.decodeString( Offset ) ));
-        ps.setInt(2, Integer.parseInt( Base64Coder.decodeString( Limit ) ));
+        ps.setInt(1, Integer.parseInt( Offset ));
+        ps.setInt(2, Integer.parseInt( Limit ));
+        ResultSet rs = ps.executeQuery();
+        
+        out = "{\"COUNT\":\"" + Base64Coder.encodeString( count ) + "\",\"ROWS\":[";
+        while ( rs.next() ) {
+            out += "{\"NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 1 ) ) ) + "\",\"UID\":\"" + Base64Coder.encodeString( rs.getString( 2 ) ) + "\",\"AN\":\"" + Base64Coder.encodeString( rs.getString( 3 ) ) + "\",\"CONM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 4 ) ) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 5 ) ) ) + "\",\"TEXT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString( 6 ) ) ) + "\",\"TS\":\"" + Base64Coder.encodeString( rs.getString( 8 ) ) + "\",\"ESK\":\"" + Base64Coder.encodeString( rs.getString( 9 ) ) + "\",\"PCTRL\":\"" + rs.getString( 10 ) + "\"},";
+        }
+        out = out.substring(0, out.length()-1); out += "]}";
+        String replace = out.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        cn.close();
+        return replace;
+    }
+    
+    static public String GetCustomerServiceEntry(String Uid, String Uuid, String Cuid, String Offset, String Limit) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "f.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
+        String out = null;
+        String count = null;
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository");
+        Connection cn = ds.getConnection();
+        
+        String sqlC = "select count(*) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e, profiles_contract_role_mapping f where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid and d.ccid=f.ccid and ( " + sor + " ) and a.cuid=?";
+        PreparedStatement psC = cn.prepareStatement(sqlC);
+        psC.setInt(1, Integer.parseInt( Base64Coder.decodeString( Cuid ) ));
+        ResultSet rsC = psC.executeQuery();
+        
+        if ( rsC.next() ) { count = rsC.getString( 1 ); }
+        
+        String sqlSE = "select decode(c.usdc,'base64'),decode(c.usnm,'base64'),d.ccnr,decode(e.cotrln,'base64'),decode(b.cunm,'base64'),decode(a.comt,'base64'),a.delay,a.utim,a.esk,bit_length(c.upic) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e, profiles_contract_role_mapping f where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid and d.ccid=f.ccid and ( " + sor + " ) and a.cuid=? order by a.msid DESC offset ? limit ?";
+        PreparedStatement ps = cn.prepareStatement(sqlSE);
+        ps.setInt(1, Integer.parseInt( Base64Coder.decodeString( Cuid ) ));
+        ps.setInt(2, Integer.parseInt( Offset ));
+        ps.setInt(3, Integer.parseInt( Limit ));
         ResultSet rs = ps.executeQuery();
         
         out = "{\"COUNT\":\"" + Base64Coder.encodeString( count ) + "\",\"ROWS\":[";
@@ -1800,5 +1912,39 @@ public class Functions {
         ResultSet rsUro = psUro.executeQuery();
         cnR.close();
         return rsUro;
+    }
+    
+    /*
+     * Mailing Entry
+     */
+    
+    static public void CreateMailEntry(String msid, String uuid, String cuid, String ccid, String mto, String mcc, String msubject, String mbody, String esk) throws FileNotFoundException, IOException, NamingException, SQLException, ParseException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        
+        Long ctime = System.currentTimeMillis()/1000;
+        
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        
+        PreparedStatement ps = cn.prepareStatement("INSERT INTO profiles_mailing(MSID,DONE,UUID,CUID,CCID,MTO,MCC,MSUBJECT,MBODY,MESC,CREATED) VALUES (?,false,?,?,?,?,?,?,?,?,?)");
+        ps.setInt(1, Integer.parseInt( msid ));
+        ps.setInt(2, Integer.parseInt( uuid ));
+        ps.setInt(3, Integer.parseInt( cuid ));
+        ps.setInt(4, Integer.parseInt( ccid ));
+        ps.setString(5, mto );
+        ps.setString(6, mcc );
+        ps.setString(7, msubject );
+        ps.setString(8, mbody.replace("78", "+"));
+        ps.setInt(9, Integer.parseInt( esk ));
+        ps.setLong(10, ctime);
+        ps.executeUpdate();
+        
+        /*
+         * Close Connection
+         */
+        cn.close();
     }
 }

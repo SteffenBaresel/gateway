@@ -12,9 +12,9 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <!--GATEWAY_ENGINE:3.0.140205-->
+        <!--GATEWAY_ENGINE:3.0.140303-->
         <center>
-            <h2>kVASy&reg; System Control - Gateway Engine 3.0.140205</h2>
+            <h2>kVASy&reg; System Control - Gateway Engine 3.0.140303</h2>
             <p>
                 <font size=2>Entwicklungslinie 3 Build 2014.02</font>
             </p>
@@ -41,9 +41,9 @@
         </div>
         <hr>
         <br></br>
-        <!--GATEWAY_VERSION:2.3.131203-->
+        <!--GATEWAY_VERSION:2.3.140303-->
         Modul: <i><b>Repository</b></i><br>
-        Version: <i><b>2.3.131203</b></i><br>
+        Version: <i><b>2.3.140303</b></i><br>
         Comments: -
         <br></br>
         Format: <i><b>JSON</b></i><br>
@@ -94,14 +94,17 @@
             <li><b>UpdateCustomerRole</b> - Update Customer with Role URL: <a href="/gateway/exec/UpdateCustomerRole?cuid=&rlid=">/gateway/exec/UpdateCustomerRole?cuid=&rlid=</a></li>
             <li><b>UpdateContractRole</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateContractRole?ccid=&rlid=">/gateway/exec/UpdateContractRole?ccid=&rlid=</a></li>
             <li><b>ResetDashboard</b> - Reset Dashboard Configuration URL: <a href="/gateway/exec/ResetDashboard">/gateway/exec/ResetDashboard</a></li>
+            <li><b>CreateMailEntry</b> Create Mail Entry, required BASE64 values for parameter URL: <a href="/gateway/exec/CreateMailEntry?msid=uuid=&cuid=&ccid=&mto=&mcc=&msubject=&mbody=&mesc">/gateway/exec/CreateMailEntry?msid=uuid=&cuid=&ccid=&mto=&mcc=&msubject=&mbody=&mesc</a>
+            <li><b>GetCustomerServiceEntry</b> Get Service Entry for one Customer, required BASE64 values for parameter URL: <a href="/gateway/exec/GetCustomerServiceEntry?uuid=&cuid=&offset=&limit=">/gateway/exec/GetCustomerServiceEntry?uuid=&cuid=&offset=&limit=</a>
+            <li><b>GetCustomerServiceEntries</b> Get Configured Customer by search URL: <a href="/gateway/exec/GetCustomerServiceEntries?uuid=&cuid=">/gateway/exec/GetCustomerServiceEntries?uuid=&cuid=</a>
         </ul>
         </font>
         <br></br>        
         <hr>
         <br></br>
-        <!--MONITORING_VERSION:3.0.140205-->
+        <!--MONITORING_VERSION:3.0.140303-->
         Modul: <i><b>Monitoring</b></i><br>
-        Version: <i><b>3.0.140205</b></i><br>
+        Version: <i><b>3.0.140303</b></i><br>
         Comments: -
         <br></br>
         Format: <i><b>JSON</b></i><br>
@@ -126,10 +129,28 @@
             <li><b>UpdateHostCustomer</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateHostCustomer?hstid=&cuid=">/gateway/exec/UpdateHostCustomer?hstid=&cuid=</a></li>
             <li><b>UpdateHostContract</b> - Update Contract with Role URL: <a href="/gateway/exec/UpdateHostContract?hstid=&ccid=">/gateway/exec/UpdateHostContract?hstid=&ccid=</a></li>
             <li><b>ServiceDowntime</b> Downtime Service, required BASE64 values for parameter URL: <a href="/gateway/monitoring/ServiceDowntime?hstid=&srvid=&instid=&cuid=&ccid=&dstart=&dend=&comment=">/gateway/monitoring/ServiceDowntime?hstid=&srvid=&instid=&cuid=&ccid=&dstart=&dend=&comment=</a>
+            <li><b>ServiceStatus</b> List Services by state, required BASE64 values for parameter URL: <a href="/gateway/monitoring/ServiceStatus?s=">/gateway/monitoring/ServiceStatus?s=</a>
+            <li><b>CurProbs</b> List current Services Problems, required BASE64 values for parameter URL: <a href="/gateway/monitoring/CurProbs">/gateway/monitoring/CurProbs</a>
+            <li><b>DbStatus</b> List Database Services by state, required BASE64 values for parameter URL: <a href="/gateway/monitoring/DbStatus?s=">/gateway/monitoring/DbStatus?s=</a>
         </ul>
         </font>
         <br></br>
         <hr>
+        <br></br>
+        <!--SEARCH_VERSION:3.0.140617-->
+        Modul: <i><b>Search</b></i><br>
+        Version: <i><b>3.0.140617</b></i><br>
+        Comments: -
+        <br></br>
+        Format: <i><b>JSON</b></i><br>
+        <font size=2>Query:<br>
+        <ul>
+            <li><b>Autocomplete</b> - Get Values for Autocomplete, input BASE64 encoded URL: <a href="/gateway/search/Autocomplete?t=&v=">/gateway/search/Autocomplete?t=&v=</a></li>
+            <li><b>SearchHosts</b> - Search for Hosts, input BASE64 encoded URL: <a href="/gateway/search/SearchHosts?v=">/gateway/search/SearchHosts?v=</a></li>
+            <li><b>SearchServices</b> - Search for Services, input BASE64 encoded URL: <a href="/gateway/search/SearchServices?v=">/gateway/search/SearchServices?v=</a></li>
+        </ul>
+        </font>
+        <br></br>
         <center><font size="1"><b><br>2014 Steffen Baresel</b></font></center>
     </body>
 </html>

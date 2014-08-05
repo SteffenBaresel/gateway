@@ -62,9 +62,9 @@ public class SendHtmlMail extends HttpServlet {
         }
         
         if (ctsSuccess) {
-            out.println("{\"SEND\":\"1\",\"TO\":\"" + to + "\",\"CC\":\"" + cc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
+            out.println("{\"SEND\":\"1\",\"TO\":\"" + to + "\",\"CC\":\"" + cc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\",\"TEXT\":\"" + text + "\"}");
         } else {
-            out.println("{\"SEND\":\"0\",\"TO\":\"" + to + "\",\"CC\":\"" + cc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\"}");
+            out.println("{\"SEND\":\"0\",\"TO\":\"" + to + "\",\"CC\":\"" + cc + "\",\"FROM\":\"" + from + "\",\"SUBJECT\":\"" + subject + "\",\"TEXT\":\"" + text + "\"}");
         }
     }
 

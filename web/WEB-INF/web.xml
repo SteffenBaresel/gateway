@@ -411,11 +411,33 @@
         <servlet-name>ResetDashboard</servlet-name>
         <url-pattern>/exec/ResetDashboard</url-pattern>
     </servlet-mapping>
-    
+    <servlet>
+        <servlet-name>CreateMailEntry</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.CreateMailEntry</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateMailEntry</servlet-name>
+        <url-pattern>/exec/CreateMailEntry</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetCustomerServiceEntry</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetCustomerServiceEntry</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetCustomerServiceEntry</servlet-name>
+        <url-pattern>/exec/GetCustomerServiceEntry</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetCustomerServiceEntries</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetCustomerServiceEntries</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetCustomerServiceEntries</servlet-name>
+        <url-pattern>/exec/GetCustomerServiceEntries</url-pattern>
+    </servlet-mapping>
     <!--
             Monitoring Servlets
     -->
-    
     <servlet>
         <servlet-name>BigTaov</servlet-name>
         <servlet-class>de.siv.ksc.monitoring.BigTaov</servlet-class>
@@ -568,12 +590,61 @@
         <servlet-name>ServiceDowntime</servlet-name>
         <url-pattern>/monitoring/ServiceDowntime</url-pattern>
     </servlet-mapping>
-    
+    <servlet>
+        <servlet-name>ServiceStatus</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.ServiceStatus</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServiceStatus</servlet-name>
+        <url-pattern>/monitoring/ServiceStatus</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>CurProbs</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.CurProbs</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CurProbs</servlet-name>
+        <url-pattern>/monitoring/CurProbs</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>DbStatus</servlet-name>
+        <servlet-class>de.siv.ksc.monitoring.DbStatus</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DbStatus</servlet-name>
+        <url-pattern>/monitoring/DbStatus</url-pattern>
+    </servlet-mapping>
+    <!--
+        Search
+    -->
+    <servlet>
+        <servlet-name>Autocomplete</servlet-name>
+        <servlet-class>de.siv.ksc.search.Autocomplete</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Autocomplete</servlet-name>
+        <url-pattern>/search/Autocomplete</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>SearchHosts</servlet-name>
+        <servlet-class>de.siv.ksc.search.SearchHosts</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchHosts</servlet-name>
+        <url-pattern>/search/SearchHosts</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>SearchServices</servlet-name>
+        <servlet-class>de.siv.ksc.search.SearchServices</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchServices</servlet-name>
+        <url-pattern>/search/SearchServices</url-pattern>
+    </servlet-mapping>
     <!--
             Welcome File & Datasource
     -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-    
 </web-app>

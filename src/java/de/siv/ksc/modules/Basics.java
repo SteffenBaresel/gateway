@@ -21,7 +21,7 @@ import java.util.TimeZone;
  *
  * @author sbaresel
  */
-public class Basics {
+ public class Basics {
     /**
      *
      * @throws FileNotFoundException
@@ -73,5 +73,13 @@ public class Basics {
         Long utime = sdf.parse(date).getTime();
         utime = utime/1000;
         return utime.toString();
+    }
+    
+    static public Long LongConvertDate(String date) throws FileNotFoundException, IOException, ParseException
+    {
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // the format of your date
+        Long utime = sdf.parse(date).getTime();
+        utime = utime/1000;
+        return utime;
     }
 }

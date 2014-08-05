@@ -24,11 +24,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class CreateServiceEntry extends HttpServlet {
+public class CreateMailEntry extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uuid, String cuid, String ccid, String comtid, String tm, String dl, String co, String esk)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String msid, String uuid, String cuid, String ccid, String mto, String mcc, String msubject, String mbody, String esk)
         throws ServletException, IOException, FileNotFoundException, ParseException {
 
         if (props == null) {
@@ -40,29 +40,29 @@ public class CreateServiceEntry extends HttpServlet {
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
         String ctsSuccess = "0";
-        String msid="0";
+        
         
         try {
-            msid = Functions.CreateServiceEntry(uuid,cuid,ccid,comtid,tm,dl,co,esk);
+            Functions.CreateMailEntry(msid, uuid, cuid, ccid, mto, mcc, msubject, mbody, esk);
             ctsSuccess = "1";
         } catch (NamingException ex) {
             ctsSuccess = "0";
-            Logger.getLogger(CreateCustomer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CreateMailEntry.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             ctsSuccess = "0";
-            Logger.getLogger(CreateCustomer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CreateMailEntry.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        out.println("{\"EXEC\":\"" + ctsSuccess + "\",\"CO\":\"" + co + "\",\"MSID\":\"" + msid + "\"}");
+        out.println("{\"EXEC\":\"" + ctsSuccess + "\",\"MSID\":\"" + msid + "\",\"UUID\":\"" + uuid + "\",\"CUID\":\"" + cuid + "\",\"CCID\":\"" + ccid + "\",\"MTO\":\"" + mto + "\",\"MCC\":\"" + mcc + "\",\"MSUBJECT\":\"" + msubject + "\",\"MBODY\":\"" + mbody + "\",\"MESC\":\"" + esk + "\"}");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, FileNotFoundException {
         try {
-            processRequest(request,response,request.getParameter("uuid"),request.getParameter("cuid"),request.getParameter("ccid"),request.getParameter("comtid"),request.getParameter("tm"),request.getParameter("dl"),request.getParameter("co"),request.getParameter("esk"));
+            processRequest(request,response,request.getParameter("msid"),request.getParameter("uuid"),request.getParameter("cuid"),request.getParameter("ccid"),request.getParameter("mto"),request.getParameter("mcc"),request.getParameter("msubject"),request.getParameter("mbody"),request.getParameter("mesc"));
         } catch (ParseException ex) {
-            Logger.getLogger(CreateServiceEntry.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CreateMailEntry.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

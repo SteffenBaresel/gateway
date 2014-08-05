@@ -38,11 +38,14 @@ public class Monitoring {
          */
         
         String sor = "";
+        String sorr = "";
         ResultSet rsUro = Functions.GetUserRoles(Uid);
         while(rsUro.next()) {
             sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+            sorr+= "f.rlid=" + rsUro.getString( 1 ) + " or ";
         }
         sor = sor.substring(0, sor.length()-4);
+        sorr = sorr.substring(0, sorr.length()-4);
         
         /*
          * Get User Roles Ende
@@ -69,13 +72,28 @@ public class Monitoring {
          */
         
         //String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvna not like 'SYSTEM_ICMP_REQUEST' and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid order by d.current_state DESC,c.srvid ASC";
-        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid,d.dtm,d.dtmid order by d.current_state DESC,c.srvid ASC";
+        String sql2 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid,d.dtm,d.dtmid,decode(d.output,'base64') from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and d.current_state>0 and d.ack=false and ( " + sor + " ) group by a.hstln,a.hstid,a.ipaddr,b.htypln,c.srvid,c.srvna,d.current_state,d.ack,d.ackid,a.instid,d.dtm,d.dtmid,d.output order by d.current_state DESC,c.srvid ASC";
         PreparedStatement psSrv = cn.prepareStatement(sql2);
         ResultSet rsSrv = psSrv.executeQuery();
         while ( rsSrv.next() ) {
-            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsSrv.getString( 2 ) + "\",\"IP\":\"" + rsSrv.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsSrv.getString( 4 ) ) + "\",\"SRV_ID\":\"" + rsSrv.getString( 5 ) + "\",\"SRV_NAME\":\"" + Base64Coder.encodeString( rsSrv.getString( 6 ) ) + "\",\"STATE\":\"" + rsSrv.getString( 7 ) + "\",\"ACK\":\"" + rsSrv.getString( 8 ) + "\",\"ACKID\":\"" + rsSrv.getString( 9 ) + "\",\"INSTID\":\"" + rsSrv.getString( 10 ) + "\",\"DTM\":\"" + rsSrv.getString( 11 ) + "\",\"DTMID\":\"" + rsSrv.getString( 12 ) + "\"},";
+            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsSrv.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsSrv.getString( 2 ) + "\",\"IP\":\"" + rsSrv.getString( 3 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsSrv.getString( 4 ) ) + "\",\"SRV_ID\":\"" + rsSrv.getString( 5 ) + "\",\"SRV_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsSrv.getString( 6 ) ) ) + "\",\"STATE\":\"" + rsSrv.getString( 7 ) + "\",\"ACK\":\"" + rsSrv.getString( 8 ) + "\",\"ACKID\":\"" + rsSrv.getString( 9 ) + "\",\"INSTID\":\"" + rsSrv.getString( 10 ) + "\",\"DTM\":\"" + rsSrv.getString( 11 ) + "\",\"DTMID\":\"" + rsSrv.getString( 12 ) + "\",\"OUTPUT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsSrv.getString( 13 ) ) ) + "\"},";
         }
         line = line.substring(0, line.length()-1); line+= "],";
+        
+        Context ctxr = new InitialContext(); 
+        DataSource dsr  = (DataSource) ctxr.lookup("jdbc/repository");
+        Connection cnr = dsr.getConnection();
+        
+        String sqlSE = "select decode(c.usdc,'base64'),decode(c.usnm,'base64'),d.ccnr,decode(e.cotrln,'base64'),decode(b.cunm,'base64'),decode(a.comt,'base64'),a.delay,a.utim,a.esk,bit_length(c.upic) from managed_service_cservices a,managed_service_cinfo b,profiles_user c,managed_service_ccontracts d,class_contracttypes e, profiles_contract_role_mapping f where a.cuid=b.cuid and a.uuid=c.uuid and a.ccid=d.ccid and d.cttyid=e.cttyid and d.ccid=f.ccid and ( " + sorr + " ) order by a.msid DESC limit 20";
+        PreparedStatement psr = cnr.prepareStatement(sqlSE);
+        ResultSet rsr = psr.executeQuery();
+        
+        line+= "\"COMMENTS\":[";
+        while ( rsr.next() ) {
+            line+= "{\"NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsr.getString( 1 ) ) ) + "\",\"UID\":\"" + Base64Coder.encodeString( rsr.getString( 2 ) ) + "\",\"AN\":\"" + Base64Coder.encodeString( rsr.getString( 3 ) ) + "\",\"CONM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsr.getString( 4 ) ) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsr.getString( 5 ) ) ) + "\",\"TEXT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsr.getString( 6 ) ) ) + "\",\"TS\":\"" + Base64Coder.encodeString( rsr.getString( 8 ) ) + "\",\"ESK\":\"" + Base64Coder.encodeString( rsr.getString( 9 ) ) + "\",\"PCTRL\":\"" + rsr.getString( 10 ) + "\"},";
+        }
+        line = line.substring(0, line.length()-1); line+= "],";
+        
         /*
          * Host Taov
          */
@@ -117,8 +135,7 @@ public class Monitoring {
         while ( rsSlMW.next() ) {
             if (rsSlMW.getInt( 1 ) == 0) { online = rsSlMW.getInt( 2 ); } else { offline = offline + rsSlMW.getInt( 2 ); };
         }
-        
-        
+                
         //line+= "\"SLIMTAOV\":[{\"HOSTS\":[{\"UP\":\"" + up + "\",\"DOWN\":\"" + down + "\",\"UNREACHABLE\":\"" + unr + "\"}]},{\"SERVICES\":[{\"OK\":\"" + ok + "\",\"WARNING\":\"" + wa + "\",\"CRITICAL\":\"" + cr + "\",\"UNKNOWN\":\"" + un + "\"}]},{\"DATABASES\":[{\"OPEN\":\"" + open + "\",\"STOPPED\":\"" + stopped + "\"}]},{\"MIDDLEWARE\":[{\"ONLINE\":\"" + online + "\",\"OFFLINE\":\"" + offline + "\"}]}],\"LIVETICKER\":[";
         line+= "\"SLIMTAOV\":[{\"HOSTS\":[{}]},{\"SERVICES\":[{\"OK\":\"" + ok + "\",\"WARNING\":\"" + wa + "\",\"CRITICAL\":\"" + cr + "\",\"UNKNOWN\":\"" + un + "\"}]},{\"DATABASES\":[{\"OPEN\":\"" + open + "\",\"STOPPED\":\"" + stopped + "\"}]},{\"MIDDLEWARE\":[{\"ONLINE\":\"" + online + "\",\"OFFLINE\":\"" + offline + "\"}]}],\"LIVETICKER\":[";
         
@@ -131,12 +148,13 @@ public class Monitoring {
         psLt.setLong(1,timestamp);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
-            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"SERVICE_ID\":\"" + rsLt.getString( 4 ) + "\",\"STATE\":\"" + rsLt.getString( 5 ) + "\",\"CREATED\":\"" + rsLt.getString( 6 ) + "\"},";
+            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 3 ) ) ) + "\",\"SERVICE_ID\":\"" + rsLt.getString( 4 ) + "\",\"STATE\":\"" + rsLt.getString( 5 ) + "\",\"CREATED\":\"" + rsLt.getString( 6 ) + "\",\"QUERY\":\"" + Base64Coder.encodeString( sql7 ) + "\"},";
         }
         line = line.substring(0, line.length()-1); line+= "]}";
         
         String replace = line.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
         cn.close();
+        cnr.close();
         return replace;
     }
     
@@ -168,12 +186,12 @@ public class Monitoring {
          */
         String line = "{\"LIVETICKER\":[";
         long timestamp = (System.currentTimeMillis()/1000) - 1800;
-        String sql8 = "select a.hstln,b.hstid,d.htypicon,d.htypln,c.srvna,b.srvid,b.state,b.output,b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, class_hosttypes d, monitoring_host_role_mapping e, monitoring_status f where a.hstid=b.hstid and b.srvid=c.srvid and a.htypid=d.htypid and a.hstid=e.hstid and b.srvid=f.srvid and ( " + sor + " ) and b.new_problem=1 and f.ack=false and f.dtm=false and b.state>1 and b.created>? order by b.created desc";
+        String sql8 = "select a.hstln,b.hstid,d.htypicon,d.htypln,c.srvna,b.srvid,b.state,decode(b.output,'base64'),b.created from monitoring_info_host a,monitoring_state_change b,monitoring_info_service c, class_hosttypes d, monitoring_host_role_mapping e, monitoring_status f where a.hstid=b.hstid and b.srvid=c.srvid and a.htypid=d.htypid and a.hstid=e.hstid and b.srvid=f.srvid and ( " + sor + " ) and b.new_problem=1 and f.ack=false and f.dtm=false and b.state>1 and b.created>? order by b.created desc";
         PreparedStatement psLt = cn.prepareStatement(sql8);
         psLt.setLong(1,timestamp);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
-            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"STATE\":\"" + rsLt.getString( 7 ) + "\",\"OUTPUT\":\"" + rsLt.getString( 8 ) + "\",\"CREATED\":\"" + rsLt.getString( 9 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 9 ) ) + "\"},";
+            line+= "{\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 5 ) ) ) + "\",\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"STATE\":\"" + rsLt.getString( 7 ) + "\",\"OUTPUT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 8 ) ) ) + "\",\"CREATED\":\"" + rsLt.getString( 9 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 9 ) ) + "\"},";
         }
         line = line.substring(0, line.length()-1); line+= "]}";
         
@@ -210,12 +228,12 @@ public class Monitoring {
          * Monitoring Info
          */
         String line = "[";
-        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,d.output,d.created,a.instid,d.ack,d.ackid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
+        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,decode(d.output,'base64'),d.created,a.instid,d.ack,d.ackid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
         PreparedStatement psLt = cn.prepareStatement(sql9);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
-            if (rsLt.getString( 1 ).equals(tmphn)) { } else { line = line.substring(0, line.length()-1); line+= "]},{\"HOST_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_ADDRESS\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"SERVICES\":["; }
-            line+= "{\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 7 ) ) + "\",\"STATE\":\"" + rsLt.getString( 8 ) + "\",\"OUTPUT\":\"" + rsLt.getString( 9 ) + "\",\"CREATED\":\"" + rsLt.getString( 10 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 10 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"ACK\":\"" + rsLt.getString( 12 ) + "\",\"ACKID\":\"" + rsLt.getString( 13 ) + "\",\"DTM\":\"" + rsLt.getString( 14 ) + "\",\"DTMID\":\"" + rsLt.getString( 15 ) + "\"},";
+            if (rsLt.getString( 1 ).equals(tmphn)) { } else { line = line.substring(0, line.length()-1); line+= "]},{\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_ADDRESS\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"SERVICES\":["; }
+            line+= "{\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 7 ) ) ) + "\",\"STATE\":\"" + rsLt.getString( 8 ) + "\",\"OUTPUT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 9 ) ) ) + "\",\"CREATED\":\"" + rsLt.getString( 10 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 10 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"ACK\":\"" + rsLt.getString( 12 ) + "\",\"ACKID\":\"" + rsLt.getString( 13 ) + "\",\"DTM\":\"" + rsLt.getString( 14 ) + "\",\"DTMID\":\"" + rsLt.getString( 15 ) + "\"},";
             tmphn = rsLt.getString( 1 );
         }
         line = line.substring(0, line.length()-1); line+= "]}"; line = line.substring(3);
@@ -260,13 +278,13 @@ public class Monitoring {
          * Service History
          */
         String line = "[";
-        PreparedStatement psLt = cn.prepareStatement("select a.srvna,b.current_state,b.output,b.perf_data,b.created from monitoring_info_service a, monitoring_status_history b where a.srvid=b.srvid and a.srvid=? and b.created>? order by b.created desc limit 50");
+        PreparedStatement psLt = cn.prepareStatement("select a.srvna,b.current_state,decode(b.output,'base64'),b.perf_data,b.created from monitoring_info_service a, monitoring_status_history b where a.srvid=b.srvid and a.srvid=? and b.created>? order by b.created desc limit 50");
         psLt.setInt(1,Srvid);
         psLt.setLong(2,timestamp);
         ResultSet rsLt = psLt.executeQuery();
         while ( rsLt.next() ) {
             if (tmstmpold != rsLt.getLong( 5 )) {
-                line+= "{\"SERVICE_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 1 ) ) + "\",\"STATE\":\"" + rsLt.getString( 2 ) + "\",\"OUTPUT\":\"" + rsLt.getString( 3 ) + "\",\"PERF_DATA\":\"" + rsLt.getString( 4 ) + "\",\"CREATED\":\"" + rsLt.getString( 5 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 5 ) ) + "\"},";
+                line+= "{\"SERVICE_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"STATE\":\"" + rsLt.getString( 2 ) + "\",\"OUTPUT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 3 ) ) ) + "\",\"PERF_DATA\":\"" + rsLt.getString( 4 ) + "\",\"CREATED\":\"" + rsLt.getString( 5 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 5 ) ) + "\"},";
             }
             tmstmpold = rsLt.getLong( 5 );
         }
@@ -291,15 +309,15 @@ public class Monitoring {
         psLt.setInt(1,Hstid);
         ResultSet rsLt = psLt.executeQuery();
         if( rsLt.next() ) {
-            line += "\"HOST_NAME\":\"" + Base64Coder.encodeString( rsLt.getString( 1 ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"IP\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_ICON\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"STATE\":\"" + rsLt.getString( 6 ) + "\",\"CONTRACTS\":[";
+            line += "\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"IP\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_ICON\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 4 ) ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 5 ) ) ) + "\",\"STATE\":\"" + rsLt.getString( 6 ) + "\",\"CONTRACTS\":[";
             Context ctxR = new InitialContext(); 
             DataSource dsR  = (DataSource) ctxR.lookup("jdbc/repository"); 
             Connection cnR = dsR.getConnection(); 
-            PreparedStatement psR = cnR.prepareStatement("select a.cuid,a.cunr,a.cunm,b.ccid,b.ccnr,e.cotrln from managed_service_cinfo a, managed_service_ccontracts b, monitoring_host_customer_mapping c, monitoring_host_contract_mapping d, class_contracttypes e where a.cuid=c.cuid and b.ccid=d.ccid and c.hstid=d.hstid and b.cttyid=e.cttyid and d.hstid=?");
+            PreparedStatement psR = cnR.prepareStatement("select a.cuid,a.cunr,decode(a.cunm,'base64'),b.ccid,b.ccnr,decode(e.cotrln,'base64') from managed_service_cinfo a, managed_service_ccontracts b, monitoring_host_customer_mapping c, monitoring_host_contract_mapping d, class_contracttypes e where a.cuid=c.cuid and b.ccid=d.ccid and c.hstid=d.hstid and b.cttyid=e.cttyid and d.hstid=?");
             psR.setInt(1,Hstid);
             ResultSet rsR = psR.executeQuery();
             while(rsR.next()) {
-                line+="{\"CUID\":\"" + Base64Coder.encodeString( rsR.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rsR.getString(2) ) + "\",\"CUNM\":\"" + rsR.getString(3) + "\",\"CCID\":\"" + Base64Coder.encodeString( rsR.getString(4) ) + "\",\"CCNR\":\"" + Base64Coder.encodeString( rsR.getString(5) ) + "\",\"CCNM\":\"" + rsR.getString(6) + "\"},";
+                line+="{\"CUID\":\"" + Base64Coder.encodeString( rsR.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rsR.getString(2) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsR.getString(3) ) ) + "\",\"CCID\":\"" + Base64Coder.encodeString( rsR.getString(4) ) + "\",\"CCNR\":\"" + Base64Coder.encodeString( rsR.getString(5) ) + "\",\"CCNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsR.getString(6) ) ) + "\"},";
             }
             line = line.substring(0, line.length()-1);
             line+= "]";
@@ -552,10 +570,6 @@ public class Monitoring {
         DataSource dsM  = (DataSource) ctxM.lookup("jdbc/monitoring"); 
         Connection cnM = dsM.getConnection(); 
         
-        /* rebuild comment */
-        String cor1 = Base64Coder.decodeString( co.replace("78", "+") );
-        String cor2 = Base64Coder.encodeString( cor1.substring(cor1.indexOf("--><hr>")+7) );
-        
         /* Insert Acknowledge Command to task Table */
         
         PreparedStatement psD = cnM.prepareStatement("insert into monitoring_task(type,hstid,srvid,done,usr,tsstart,tsend,comment,instid) values ('4',?,?,false,?,?,'0',?,?)");
@@ -563,7 +577,7 @@ public class Monitoring {
         psD.setInt(2,Integer.parseInt( Base64Coder.decodeString( srvid ) ));
         psD.setString(3, Base64Coder.encodeString(uuid) );
         psD.setInt(4,Integer.parseInt( Basics.ConvertDate( Base64Coder.decodeString( tm ) ) ));
-        psD.setString(5, cor2 );
+        psD.setString(5, co.replace("78", "+") );
         psD.setInt(6,Integer.parseInt( Base64Coder.decodeString( instid ) ));
         psD.executeUpdate();
         /*
@@ -655,7 +669,7 @@ public class Monitoring {
         DataSource ds  = (DataSource) ctx.lookup("jdbc/monitoring"); 
         Connection cn = ds.getConnection(); 
         
-        PreparedStatement ps = cn.prepareStatement("select usr,comment,ts from monitoring_acknowledge where ackid=?");
+        PreparedStatement ps = cn.prepareStatement("select usr,decode(comment,'base64'),ts from monitoring_acknowledge where ackid=?");
         ps.setInt(1,Integer.parseInt( ackid ));
         ResultSet rs = ps.executeQuery();
 
@@ -669,7 +683,7 @@ public class Monitoring {
             psR.setString(1,rs.getString(1));
             ResultSet rsR = psR.executeQuery();
             if(rsR.next()) {
-                out += "{\"USER\":\"" + rsR.getString(1) + "\",\"COMMENT\":\"" + rs.getString(2) + "\",\"CREATED\":\"" + rs.getString( 3 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rs.getLong( 3 ) ) + "\"}";
+                out += "{\"USER\":\"" + Basics.encodeHtml( rsR.getString(1) ) + "\",\"COMMENT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(2) ) ) + "\",\"CREATED\":\"" + rs.getString( 3 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rs.getLong( 3 ) ) + "\"}";
             }
             cnR.close();
         }
@@ -697,9 +711,9 @@ public class Monitoring {
         Connection cnM = dsM.getConnection();
         
         
-        PreparedStatement pscu = cnR.prepareStatement("SELECT a.cuid,decode(a.cunm,'base64'),a.cunr FROM managed_service_cinfo a,profiles_customer_role_mapping e WHERE a.cuid=e.cuid order by 3");
+        PreparedStatement pscu = cnR.prepareStatement("SELECT a.cuid,decode(a.cunm,'base64'),a.cunr FROM managed_service_cinfo a,profiles_customer_role_mapping e WHERE a.cuid=e.cuid group by a.cuid,a.cunm,a.cunr order by 3");
         ResultSet cu = pscu.executeQuery();
-        PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 2");
+        PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 1");
         ResultSet ht = psht.executeQuery();
         PreparedStatement psma = cnR.prepareStatement("SELECT hstid,cuid FROM monitoring_host_customer_mapping");
         ResultSet ma = psma.executeQuery();
@@ -761,9 +775,9 @@ public class Monitoring {
         Connection cnM = dsM.getConnection();
         
         
-        PreparedStatement pscu = cnR.prepareStatement("select a.ccid,decode(b.cotrln,'base64'),a.ccnr,decode(c.cunm,'base64') from managed_service_ccontracts a, class_contracttypes b, managed_service_cinfo c, profiles_contract_role_mapping e where a.cttyid=b.cttyid and a.cuid=c.cuid and a.ccid=e.ccid order by 3");
+        PreparedStatement pscu = cnR.prepareStatement("select a.ccid,decode(b.cotrln,'base64'),a.ccnr,decode(c.cunm,'base64') from managed_service_ccontracts a, class_contracttypes b, managed_service_cinfo c, profiles_contract_role_mapping e where a.cttyid=b.cttyid and a.cuid=c.cuid and a.ccid=e.ccid group by a.ccid,b.cotrln,a.ccnr,c.cunm order by 3");
         ResultSet cu = pscu.executeQuery();
-        PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 2");
+        PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 1");
         ResultSet ht = psht.executeQuery();
         PreparedStatement psma = cnR.prepareStatement("SELECT hstid,ccid FROM monitoring_host_contract_mapping");
         ResultSet ma = psma.executeQuery();
@@ -827,7 +841,7 @@ public class Monitoring {
         
         PreparedStatement pscu = cnR.prepareStatement("SELECT rlid,decode(rlnm,'base64'),decode(rlde,'base64') FROM profiles_role order by 3");
         ResultSet cu = pscu.executeQuery();
-        PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 2");
+        PreparedStatement psht = cnM.prepareStatement("SELECT hstid,hstln,ipaddr FROM monitoring_info_host order by 1");
         ResultSet ht = psht.executeQuery();
         PreparedStatement psma = cnR.prepareStatement("SELECT hstid,rlid FROM monitoring_host_role_mapping");
         ResultSet ma = psma.executeQuery();
@@ -1017,5 +1031,148 @@ public class Monitoring {
          */
         cn.close();
         return out;
+    }
+    
+    /*
+     * Service Status
+     */
+    
+    static public String ServiceStatus(String Uid, String Stat) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/monitoring");
+        Connection cn = ds.getConnection(); 
+        String tmphn="";
+        /*
+         * Monitoring Info
+         */
+        String line = "[";
+        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,decode(d.output,'base64'),d.created,a.instid,d.ack,d.ackid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) and d.current_state = ? order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
+        PreparedStatement psLt = cn.prepareStatement(sql9);
+        psLt.setInt(1,Integer.parseInt( Base64Coder.decodeString( Stat ) ));
+        ResultSet rsLt = psLt.executeQuery();
+        while ( rsLt.next() ) {
+            if (rsLt.getString( 1 ).equals(tmphn)) { } else { line = line.substring(0, line.length()-1); line+= "]},{\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_ADDRESS\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"SERVICES\":["; }
+            line+= "{\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 7 ) ) ) + "\",\"STATE\":\"" + rsLt.getString( 8 ) + "\",\"OUTPUT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 9 ) ) ) + "\",\"CREATED\":\"" + rsLt.getString( 10 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 10 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"ACK\":\"" + rsLt.getString( 12 ) + "\",\"ACKID\":\"" + rsLt.getString( 13 ) + "\",\"DTM\":\"" + rsLt.getString( 14 ) + "\",\"DTMID\":\"" + rsLt.getString( 15 ) + "\"},";
+            tmphn = rsLt.getString( 1 );
+        }
+        line = line.substring(0, line.length()-1); line+= "]}"; line = line.substring(3);
+        
+        String replace = line.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        cn.close();
+        return "[" + replace + "]";
+    }
+    
+    /*
+     * Service Status
+     */
+    
+    static public String CurProbs(String Uid) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/monitoring");
+        Connection cn = ds.getConnection(); 
+        String tmphn="";
+        /*
+         * Monitoring Info
+         */
+        String line = "[";
+        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,decode(d.output,'base64'),d.created,a.instid,d.ack,d.ackid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) and d.current_state>0 and d.ack=false order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
+        PreparedStatement psLt = cn.prepareStatement(sql9);
+        ResultSet rsLt = psLt.executeQuery();
+        while ( rsLt.next() ) {
+            if (rsLt.getString( 1 ).equals(tmphn)) { } else { line = line.substring(0, line.length()-1); line+= "]},{\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_ADDRESS\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"SERVICES\":["; }
+            line+= "{\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 7 ) ) ) + "\",\"STATE\":\"" + rsLt.getString( 8 ) + "\",\"OUTPUT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 9 ) ) ) + "\",\"CREATED\":\"" + rsLt.getString( 10 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 10 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"ACK\":\"" + rsLt.getString( 12 ) + "\",\"ACKID\":\"" + rsLt.getString( 13 ) + "\",\"DTM\":\"" + rsLt.getString( 14 ) + "\",\"DTMID\":\"" + rsLt.getString( 15 ) + "\"},";
+            tmphn = rsLt.getString( 1 );
+        }
+        line = line.substring(0, line.length()-1); line+= "]}"; line = line.substring(3);
+        
+        String replace = line.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        cn.close();
+        return "[" + replace + "]";
+    }
+    
+    /*
+     * Database Status
+     */
+    
+    static public String DbStatus(String Uid, String Stat) throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        
+        /*
+         * Get User Roles
+         */
+        
+        String sor = "";
+        ResultSet rsUro = Functions.GetUserRoles(Uid);
+        while(rsUro.next()) {
+            sor+= "e.rlid=" + rsUro.getString( 1 ) + " or ";
+        }
+        sor = sor.substring(0, sor.length()-4);
+        
+        /*
+         * Get User Roles Ende
+         */
+        
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/monitoring");
+        Connection cn = ds.getConnection(); 
+        String tmphn="";
+        /*
+         * Monitoring Info
+         */
+        String line = "[";
+        String sql9 = "select a.hstln,a.hstid,a.ipaddr,b.htypln,b.htypicon,c.srvid,c.srvna,d.current_state,decode(d.output,'base64'),d.created,a.instid,d.ack,d.ackid,d.dtm,d.dtmid from monitoring_info_host a, class_hosttypes b, monitoring_info_service c, monitoring_status d, monitoring_host_role_mapping e where a.htypid=b.htypid and a.hstid=c.hstid and c.srvid=d.srvid and a.hstid=e.hstid and ( " + sor + " ) and c.srvna ~* '(^OLTP_|^ODWH_|^OSOB_|^OKUW_)' and d.current_state = ? order by a.hstln ASC,d.current_state DESC,c.srvid DESC";
+        PreparedStatement psLt = cn.prepareStatement(sql9);
+        psLt.setInt(1,Integer.parseInt( Base64Coder.decodeString( Stat ) ));
+        ResultSet rsLt = psLt.executeQuery();
+        while ( rsLt.next() ) {
+            if (rsLt.getString( 1 ).equals(tmphn)) { } else { line = line.substring(0, line.length()-1); line+= "]},{\"HOST_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 1 ) ) ) + "\",\"HOST_ID\":\"" + rsLt.getString( 2 ) + "\",\"HOST_ADDRESS\":\"" + Base64Coder.encodeString( rsLt.getString( 3 ) ) + "\",\"HOST_TYLN\":\"" + Base64Coder.encodeString( rsLt.getString( 4 ) ) + "\",\"HOST_TYPE\":\"" + Base64Coder.encodeString( rsLt.getString( 5 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"SERVICES\":["; }
+            line+= "{\"SERVICE_ID\":\"" + rsLt.getString( 6 ) + "\",\"SERVICE_NAME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 7 ) ) ) + "\",\"STATE\":\"" + rsLt.getString( 8 ) + "\",\"OUTPUT\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rsLt.getString( 9 ) ) ) + "\",\"CREATED\":\"" + rsLt.getString( 10 ) + "\",\"CREATED_ISO\":\"" + Basics.ConvertUtime( rsLt.getLong( 10 ) ) + "\",\"INSTID\":\"" + rsLt.getString( 11 ) + "\",\"ACK\":\"" + rsLt.getString( 12 ) + "\",\"ACKID\":\"" + rsLt.getString( 13 ) + "\",\"DTM\":\"" + rsLt.getString( 14 ) + "\",\"DTMID\":\"" + rsLt.getString( 15 ) + "\"},";
+            tmphn = rsLt.getString( 1 );
+        }
+        line = line.substring(0, line.length()-1); line+= "]}"; line = line.substring(3);
+        
+        String replace = line.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        cn.close();
+        return "[" + replace + "]";
     }
 }
