@@ -641,6 +641,22 @@
         <servlet-name>SearchServices</servlet-name>
         <url-pattern>/search/SearchServices</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>SearchCustomer</servlet-name>
+        <servlet-class>de.siv.ksc.search.SearchCustomer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchCustomer</servlet-name>
+        <url-pattern>/search/SearchCustomer</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>SearchCustomerServiceEntries</servlet-name>
+        <servlet-class>de.siv.ksc.search.SearchCustomerServiceEntries</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchCustomerServiceEntries</servlet-name>
+        <url-pattern>/search/SearchCustomerServiceEntries</url-pattern>
+    </servlet-mapping>
     <!--
             Welcome File & Datasource
     -->

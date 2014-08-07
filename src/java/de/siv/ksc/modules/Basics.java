@@ -82,4 +82,9 @@ import java.util.TimeZone;
         utime = utime/1000;
         return utime;
     }
+    
+    static public String UrlDescape(String s) { 
+        String replace = s.replace("%3A",":").replace("%3D","=").replace("+"," ").replace("%20"," ").replace("%22","\"").replace("%23","#").replace("%25","%").replace("%3C","<").replace("%3E",">").replace("%5B","[").replace("%5C","\\").replace("%5D","]").replace("%5E","^").replace("%60","`").replace("%7B","{").replace("%7C","|").replace("%7D","}").replace("%7E","~").replace("%7F","").replace("%28","(").replace("%29",")").replace("%2B","+");
+        return replace;
+    }
 }

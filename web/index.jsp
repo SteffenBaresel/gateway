@@ -12,11 +12,11 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <!--GATEWAY_ENGINE:3.0.140303-->
+        <!--GATEWAY_ENGINE:3.0.140805-->
         <center>
-            <h2>kVASy&reg; System Control - Gateway Engine 3.0.140303</h2>
+            <h2>kVASy&reg; System Control - Gateway Engine 3.0.140805</h2>
             <p>
-                <font size=2>Entwicklungslinie 3 Build 2014.02</font>
+                <font size=2>Entwicklungslinie 3 Build 2014.08</font>
             </p>
         </center>
         <div>
@@ -137,9 +137,9 @@
         <br></br>
         <hr>
         <br></br>
-        <!--SEARCH_VERSION:3.0.140617-->
+        <!--SEARCH_VERSION:3.0.140805-->
         Modul: <i><b>Search</b></i><br>
-        Version: <i><b>3.0.140617</b></i><br>
+        Version: <i><b>3.0.140805</b></i><br>
         Comments: -
         <br></br>
         Format: <i><b>JSON</b></i><br>
@@ -148,6 +148,8 @@
             <li><b>Autocomplete</b> - Get Values for Autocomplete, input BASE64 encoded URL: <a href="/gateway/search/Autocomplete?t=&v=">/gateway/search/Autocomplete?t=&v=</a></li>
             <li><b>SearchHosts</b> - Search for Hosts, input BASE64 encoded URL: <a href="/gateway/search/SearchHosts?v=">/gateway/search/SearchHosts?v=</a></li>
             <li><b>SearchServices</b> - Search for Services, input BASE64 encoded URL: <a href="/gateway/search/SearchServices?v=">/gateway/search/SearchServices?v=</a></li>
+            <li><b>SearchCustomer</b> - Search for Customer, input BASE64 encoded URL: <a href="/gateway/search/SearchCustomer?v=">/gateway/search/SearchCustomer?v=</a></li>
+            <li><b>SearchCustomerServiceEntries</b> - Search for Customer Service Entries, input BASE64 encoded URL: <a href="/gateway/search/SearchCustomerServiceEntries?v=">/gateway/search/SearchCustomerServiceEntries?v=</a></li>
         </ul>
         </font>
         <br></br>

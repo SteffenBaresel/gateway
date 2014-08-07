@@ -1052,6 +1052,8 @@ public class Functions {
         ps2.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ResultSet rs2 = ps2.executeQuery();
         
+        //out+= "\"SQL\":\"" + sqlSCC + "\",";
+        
         while (rs2.next()) { 
             out += "{\"CCID\":\"" + Base64Coder.encodeString( rs2.getString(1) ) + "\",\"CCNR\":\"" + Base64Coder.encodeString( rs2.getString(2) ) + "\",\"CCPRVE\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(3) ) ) + "\",\"CCPRDC\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(4) ) ) + "\",\"COTRSN\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(5) ) ) + "\",\"COTRLN\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(6) ) ) + "\"},";
         }
@@ -1064,11 +1066,11 @@ public class Functions {
         return replace;
     }
     
-    static public String UpdateCustomer(String cuid, String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public Integer UpdateCustomer(String cuid, String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
-        String out = "1";
+        Integer out = 0;
         Context ctx = new InitialContext(); 
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
@@ -1086,6 +1088,7 @@ public class Functions {
         ps.setString(6,ccomm.replace("78", "+"));
         ps.setInt(7,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ps.executeUpdate();
+        out++;
         
         if (!"0000".equals(Base64Coder.decodeString(ct1))) {
             PreparedStatement ps3 = cn.prepareStatement("INSERT INTO managed_service_ccontracts(CUID,CCNR,CCPRVE,CCPRDC,CTTYID) VALUES (?,?,?,?,?)");
@@ -1095,6 +1098,7 @@ public class Functions {
             ps3.setString(4,ct1pi);
             ps3.setInt(5,Integer.parseInt( Base64Coder.decodeString( ct1 ) ));
             ps3.executeUpdate();
+            out++;
         } 
                 
         /*

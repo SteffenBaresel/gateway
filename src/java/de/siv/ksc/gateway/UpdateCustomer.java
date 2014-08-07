@@ -38,16 +38,16 @@ public class UpdateCustomer extends HttpServlet {
         response.addHeader("Access-Control-Allow-Methods", "*");
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
-        String ctsSuccess = "0";
+        Integer ctsSuccess = 0;
         
         
         try {
             ctsSuccess = Functions.UpdateCustomer(cuid,cname,cnumber,cmail,cesmail,caddress,ccomm,ct1,ct1an,ct1pv,ct1pi);
         } catch (NamingException ex) {
-            ctsSuccess = "0";
+            ctsSuccess = 0;
             Logger.getLogger(UpdateCustomer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            ctsSuccess = "0";
+            ctsSuccess = 0;
             Logger.getLogger(UpdateCustomer.class.getName()).log(Level.SEVERE, null, ex);
         }
         
