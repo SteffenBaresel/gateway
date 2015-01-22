@@ -164,7 +164,7 @@
         Format: <i><b>JSON</b></i><br>
         <font size=2>Query:<br>
         <ul>
-            <li><b>TestReport</b> - Test Report URL: <a href="/gateway/reporting/TestReport">/gateway/reporting/TestReport</a></li>    
+            <li><b>ServiceReport</b> - Create Service Report, require BASE64 values for parameter "from" and "to" URL: <a href="/gateway/reporting/ServiceReport?cuid=&from=&to=">/gateway/reporting/ServiceReport?cuid=&from=&to=</a></li>    
         </ul>
         </font>
         <br></br>

@@ -24,6 +24,7 @@ import com.itextpdf.text.TabSettings;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import de.siv.ksc.modules.Base64Coder;
 import de.siv.ksc.modules.Basics;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -66,11 +67,8 @@ public class ReportingFunctions {
      * @throws    DocumentExcepticaton 
      * @throws    IOException 
      */
-    public void createPdf(HttpServletResponse response)
+    public void createPdf(HttpServletResponse response, String Cuid, String From, String To)
 	throws DocumentException, IOException, NamingException, SQLException, BadElementException, FileNotFoundException, ParseException {
-        String Cuid = "40";
-        String From = "2013-06-01 00:00:00";
-        String To = "2014-01-20 23:59:59";
         Document document = new Document(PageSize.A4, 36, 36, 54, 54);
         PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
         
@@ -80,8 +78,8 @@ public class ReportingFunctions {
         
         document.open();
         addMetaData(document, Cuid);
-        addTitlePage(document, Cuid, From, To);
-        addContent(document, Cuid, From, To);
+        addTitlePage(document, Cuid, Base64Coder.decodeString(From), Base64Coder.decodeString(To));
+        addContent(document, Cuid, Base64Coder.decodeString(From), Base64Coder.decodeString(To));
         addContact(document);
         document.close();
     }

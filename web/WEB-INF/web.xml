@@ -669,12 +669,12 @@
         Reporting
     -->
     <servlet>
-        <servlet-name>TestReport</servlet-name>
-        <servlet-class>de.siv.ksc.gateway.TestReport</servlet-class>
+        <servlet-name>ServiceReport</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.ServiceReport</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>TestReport</servlet-name>
-        <url-pattern>/reporting/TestReport</url-pattern>
+        <servlet-name>ServiceReport</servlet-name>
+        <url-pattern>/reporting/ServiceReport</url-pattern>
     </servlet-mapping>
     <!--
             Welcome File & Datasource
