@@ -435,6 +435,14 @@
         <servlet-name>GetCustomerServiceEntries</servlet-name>
         <url-pattern>/exec/GetCustomerServiceEntries</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>MonitoringMailingOverview</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.MonitoringMailingOverview</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MonitoringMailingOverview</servlet-name>
+        <url-pattern>/exec/MonitoringMailingOverview</url-pattern>
+    </servlet-mapping>
     <!--
             Monitoring Servlets
     -->
@@ -656,6 +664,17 @@
     <servlet-mapping>
         <servlet-name>SearchCustomerServiceEntries</servlet-name>
         <url-pattern>/search/SearchCustomerServiceEntries</url-pattern>
+    </servlet-mapping>
+    <!--
+        Reporting
+    -->
+    <servlet>
+        <servlet-name>TestReport</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.TestReport</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TestReport</servlet-name>
+        <url-pattern>/reporting/TestReport</url-pattern>
     </servlet-mapping>
     <!--
             Welcome File & Datasource

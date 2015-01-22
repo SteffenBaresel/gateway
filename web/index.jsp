@@ -12,11 +12,11 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <!--GATEWAY_ENGINE:3.0.140805-->
+        <!--GATEWAY_ENGINE:3.0.150121-->
         <center>
-            <h2>kVASy&reg; System Control - Gateway Engine 3.0.140805</h2>
+            <h2>kVASy&reg; System Control - Gateway Engine 3.0.150121</h2>
             <p>
-                <font size=2>Entwicklungslinie 3 Build 2014.08</font>
+                <font size=2>Entwicklungslinie 3 Build 2015.01</font>
             </p>
         </center>
         <div>
@@ -97,6 +97,7 @@
             <li><b>CreateMailEntry</b> Create Mail Entry, required BASE64 values for parameter URL: <a href="/gateway/exec/CreateMailEntry?msid=uuid=&cuid=&ccid=&mto=&mcc=&msubject=&mbody=&mesc">/gateway/exec/CreateMailEntry?msid=uuid=&cuid=&ccid=&mto=&mcc=&msubject=&mbody=&mesc</a>
             <li><b>GetCustomerServiceEntry</b> Get Service Entry for one Customer, required BASE64 values for parameter URL: <a href="/gateway/exec/GetCustomerServiceEntry?uuid=&cuid=&offset=&limit=">/gateway/exec/GetCustomerServiceEntry?uuid=&cuid=&offset=&limit=</a>
             <li><b>GetCustomerServiceEntries</b> Get Configured Customer by search URL: <a href="/gateway/exec/GetCustomerServiceEntries?uuid=&cuid=">/gateway/exec/GetCustomerServiceEntries?uuid=&cuid=</a>
+            <li><b>MonitoringMailingOverview</b> - List configured Mailgroups and Mailschedules URL: <a href="/gateway/exec/MonitoringMailingOverview">/gateway/exec/MonitoringMailingOverview</a></li>
         </ul>
         </font>
         <br></br>        
@@ -153,6 +154,20 @@
         </ul>
         </font>
         <br></br>
-        <center><font size="1"><b><br>2014 Steffen Baresel</b></font></center>
+        <hr>
+        <br></br>
+        <!--REPORTING:3.0.150121-->
+        Modul: <i><b>Reporting</b></i><br>
+        Version: <i><b>3.0.150121</b></i><br>
+        Comments: -
+        <br></br>
+        Format: <i><b>JSON</b></i><br>
+        <font size=2>Query:<br>
+        <ul>
+            <li><b>TestReport</b> - Test Report URL: <a href="/gateway/reporting/TestReport">/gateway/reporting/TestReport</a></li>    
+        </ul>
+        </font>
+        <br></br>
+        <center><font size="1"><b><br>2015 Steffen Baresel</b></font></center>
     </body>
 </html>

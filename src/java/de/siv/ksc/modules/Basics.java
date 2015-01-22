@@ -46,6 +46,11 @@ import java.util.TimeZone;
         return replace;
     }
     
+    static public String encodePdf(String desc) {
+        String replace = desc.replace("\\256", "&reg;").replace("\\303\\234", "Ue").replace("\\303\\274", "ue").replace("\\304", "Ae").replace("\\303\\204", "Ae").replace("\\344", "ae").replace("\\303\\244", "ae").replace("\\326", "Oe").replace("\\303\\226", "Oe").replace("\\366", "oe").replace("\\303\\266", "oe").replace("\\334", "Ue").replace("\\374", "ue").replace("\\337", "ss").replace("\\303\\237", "ss").replace("\\012", "\n").replace("\\302\\264", "&acute;").replace("\\011", "").replace("\\342\\200\\223", "-").replace("<br>", "\n");
+        return replace;
+    }
+    
     static public String readFile(String filename) throws FileNotFoundException, IOException
     {
         String content = null;

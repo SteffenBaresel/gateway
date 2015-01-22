@@ -1951,4 +1951,45 @@ public class Functions {
          */
         cn.close();
     }
+    
+    /*
+     * Monitoring Mailing
+     */
+    
+    static public String MonitoringMailingOverview() throws FileNotFoundException, IOException, NamingException, SQLException {
+        if (props == null) {
+            props = Basics.getConfiguration();
+        }
+        String out = null;
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        
+        // Alle Mail Gruppen
+        
+        out = "{\"GROUPS\":[";
+        PreparedStatement ps = cn.prepareStatement("select mgid,decode(nme,'base64'),decode(dsc,'base64'),ack,dtm,alt,rek,rec,dtb,ok,warn,crit,un,count from mail_group order by 2");
+        ResultSet rs = ps.executeQuery();
+        while ( rs.next() ) {
+            out += "{\"MGID\":\"" + rs.getString(1)  + "\",\"NME\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(2) ) ) + "\",\"DSC\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"ACK\":\"" + rs.getString(4) + "\",\"DTM\":\"" + rs.getString(5) + "\",\"ALT\":\"" + rs.getString(6) + "\",\"REK\":\"" + rs.getString(7) + "\",\"REC\":\"" + rs.getString(8) + "\",\"DTB\":\"" + rs.getString(9) + "\",\"OK\":\"" + rs.getString(10) + "\",\"WARN\":\"" + rs.getString(11) + "\",\"CRIT\":\"" + rs.getString(12) + "\",\"UN\":\"" + rs.getString(13) + "\",\"COUNT\":\"" + rs.getString(14) + "\"},";
+        }
+        out = out.substring(0, out.length()-1);
+        
+        // Alle Mail Pläne
+        
+        out += "],\"SCHEDULES\":[";
+        PreparedStatement ps2 = cn.prepareStatement("select tzid,decode(tzna,'base64'),decode(tzdsc,'base64'),days,hstart,mstart,hend,mend from timezone order by 2");
+        ResultSet rs2 = ps2.executeQuery();
+        while ( rs2.next() ) {
+            out += "{\"TZID\":\"" + rs2.getString(1)  + "\",\"TZNA\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(2) ) ) + "\",\"TZDSC\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs2.getString(3) ) ) + "\",\"DAYS\":\"" + rs2.getString(4) + "\",\"HSTART\":\"" + rs2.getString(5) + "\",\"MSTART\":\"" + rs2.getString(6) + "\",\"HEND\":\"" + rs2.getString(7) + "\",\"MEND\":\"" + rs2.getString(8) + "\"},";
+        }
+        out = out.substring(0, out.length()-1);
+        out += "]}";
+        /*
+         * Close Connection
+         */
+        String replace = out.replace("\n", "").replace("\r", "").replace("\":]", "\":[]");
+        cn.close();
+        return replace;
+    }
 }
