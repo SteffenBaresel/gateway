@@ -5,7 +5,7 @@
 package de.siv.ksc.gateway;
 
 import de.siv.ksc.modules.Basics;
-import de.siv.ksc.modules.Functions;
+import de.siv.ksc.reporting.Functions;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,11 +23,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class UpdateContractType extends HttpServlet {
+public class UpdateConfigReporting extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cttyid, String cotrsn, String cotrln, String mactions, String cotrcom)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String key, String val)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -38,31 +38,35 @@ public class UpdateContractType extends HttpServlet {
         response.addHeader("Access-Control-Allow-Methods", "*");
         response.setContentType("application/json; charset=utf-8");
         PrintWriter out = response.getWriter();
-        String ctsSuccess = "0";
-        
+        boolean ctsSuccess = true;
         
         try {
-            ctsSuccess = Functions.UpdateContractType(cttyid,cotrsn,cotrln,mactions,cotrcom);
+            Functions.UpdateConfigReporting(key,val);
         } catch (NamingException ex) {
-            ctsSuccess = "0";
-            Logger.getLogger(UpdateContractType.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = false;
+            Logger.getLogger(UpdateUserMail.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            ctsSuccess = "0";
-            Logger.getLogger(UpdateContractType.class.getName()).log(Level.SEVERE, null, ex);
+            ctsSuccess = false;
+            Logger.getLogger(UpdateUserMail.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        out.println("{\"EXEC\":\"" + ctsSuccess + "\",\"MACTIONS\":\"" + mactions + "\"}");
+        if (ctsSuccess) {
+            out.println("{\"ADD\":\"1\"}");
+        } else {
+            out.println("{\"ADD\":\"0\"}");
+        }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request,response,request.getParameter("cttyid"),request.getParameter("cotrsn"),request.getParameter("cotrln"),request.getParameter("mactions"),request.getParameter("cotrcom"));
+        String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
+        processRequest(request, response, uid, request.getParameter("key"), request.getParameter("val"));
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //
+        String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
+        processRequest(request, response, uid, request.getParameter("key"), request.getParameter("val"));
     }
 }

@@ -4,9 +4,7 @@
  */
 package de.siv.ksc.modules;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -82,7 +80,8 @@ import java.util.TimeZone;
     
     static public Long LongConvertDate(String date) throws FileNotFoundException, IOException, ParseException
     {
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // the format of your date
+        //DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // the format of your date
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // the format of your date
         Long utime = sdf.parse(date).getTime();
         utime = utime/1000;
         return utime;

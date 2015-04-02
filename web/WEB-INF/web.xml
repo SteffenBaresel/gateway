@@ -676,6 +676,30 @@
         <servlet-name>ServiceReport</servlet-name>
         <url-pattern>/reporting/ServiceReport</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>GetLastPageComment</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetLastPageComment</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetLastPageComment</servlet-name>
+        <url-pattern>/reporting/GetLastPageComment</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateConfigReporting</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.UpdateConfigReporting</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateConfigReporting</servlet-name>
+        <url-pattern>/reporting/UpdateConfigReporting</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetLastPageContactsComment</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetLastPageContactsComment</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetLastPageContactsComment</servlet-name>
+        <url-pattern>/reporting/GetLastPageContactsComment</url-pattern>
+    </servlet-mapping>
     <!--
             Welcome File & Datasource
     -->

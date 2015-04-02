@@ -27,7 +27,7 @@ public class CreateContractType extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cotrsn, String cotrln, String mactions)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cotrsn, String cotrln, String mactions, String cotrcom)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -42,7 +42,7 @@ public class CreateContractType extends HttpServlet {
         
         
         try {
-            ctsSuccess = Functions.CreateContractType(cotrsn,cotrln,mactions);
+            ctsSuccess = Functions.CreateContractType(cotrsn,cotrln,mactions,cotrcom);
         } catch (NamingException ex) {
             ctsSuccess = "0";
             Logger.getLogger(CreateContractType.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,7 +57,7 @@ public class CreateContractType extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request,response,request.getParameter("cotrsn"),request.getParameter("cotrln"),request.getParameter("mactions"));
+        processRequest(request,response,request.getParameter("cotrsn"),request.getParameter("cotrln"),request.getParameter("mactions"),request.getParameter("cotrcom"));
     }
 
     @Override

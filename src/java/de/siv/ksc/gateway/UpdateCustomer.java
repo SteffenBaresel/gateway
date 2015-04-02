@@ -27,7 +27,7 @@ public class UpdateCustomer extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cuid, String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String cuid, String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi, String repcom)
         throws ServletException, IOException, FileNotFoundException {
 
         if (props == null) {
@@ -42,7 +42,7 @@ public class UpdateCustomer extends HttpServlet {
         
         
         try {
-            ctsSuccess = Functions.UpdateCustomer(cuid,cname,cnumber,cmail,cesmail,caddress,ccomm,ct1,ct1an,ct1pv,ct1pi);
+            ctsSuccess = Functions.UpdateCustomer(cuid,cname,cnumber,cmail,cesmail,caddress,ccomm,ct1,ct1an,ct1pv,ct1pi,repcom);
         } catch (NamingException ex) {
             ctsSuccess = 0;
             Logger.getLogger(UpdateCustomer.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,7 +57,7 @@ public class UpdateCustomer extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request,response,request.getParameter("cuid"),request.getParameter("cname"),request.getParameter("cnumber"),request.getParameter("cmail"),request.getParameter("cesmail"),request.getParameter("caddress"),request.getParameter("ccomm"),request.getParameter("ct1"),request.getParameter("ct1an"),request.getParameter("ct1pv"),request.getParameter("ct1pi"));
+        processRequest(request,response,request.getParameter("cuid"),request.getParameter("cname"),request.getParameter("cnumber"),request.getParameter("cmail"),request.getParameter("cesmail"),request.getParameter("caddress"),request.getParameter("ccomm"),request.getParameter("ct1"),request.getParameter("ct1an"),request.getParameter("ct1pv"),request.getParameter("ct1pi"),request.getParameter("repcom"));
     }
 
     @Override

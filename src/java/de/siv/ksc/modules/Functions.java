@@ -780,7 +780,7 @@ public class Functions {
      * Customer
      */
     
-    static public String CreateCustomer(String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi, String ct2, String ct2an, String ct2pv, String ct2pi, String ct3, String ct3an, String ct3pv, String ct3pi, String ct4, String ct4an, String ct4pv, String ct4pi, String ct5, String ct5an, String ct5pv, String ct5pi, String ct6, String ct6an, String ct6pv, String ct6pi) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String CreateCustomer(String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi, String ct2, String ct2an, String ct2pv, String ct2pi, String ct3, String ct3an, String ct3pv, String ct3pi, String ct4, String ct4an, String ct4pv, String ct4pi, String ct5, String ct5an, String ct5pv, String ct5pi, String ct6, String ct6an, String ct6pv, String ct6pi, String repcom) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
@@ -803,13 +803,14 @@ public class Functions {
          * Create Customer
          */
         
-        PreparedStatement ps = cn.prepareStatement("INSERT INTO managed_service_cinfo(CUNR,CUNM,CUADDR,CUMAIL,CUESKMAIL,CUCOMM) VALUES (?,?,?,?,?,?)");
+        PreparedStatement ps = cn.prepareStatement("INSERT INTO managed_service_cinfo(CUNR,CUNM,CUADDR,CUMAIL,CUESKMAIL,CUCOMM,REPTEXT) VALUES (?,?,?,?,?,?,?)");
         ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cnumber ) ));
         ps.setString(2,cname);
         ps.setString(3,caddress.replace("78", "+"));
         ps.setString(4,cmail);
         ps.setString(5,cesmail);
         ps.setString(6,ccomm.replace("78", "+"));
+        ps.setString(7,repcom.replace("78", "+"));
         ps.executeUpdate();
         
         /*
@@ -1031,14 +1032,19 @@ public class Functions {
          * Get Customer Info
          */
         
-        String sqlSC = "SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64') FROM managed_service_cinfo a, profiles_customer_role_mapping e WHERE a.cuid=e.cuid AND ( " + sor + " ) AND a.cuid=?";
+        String sqlSC = "SELECT a.cuid,a.cunr,decode(a.cunm,'base64'),decode(a.cuaddr,'base64'),decode(a.cumail,'base64'),decode(a.cueskmail,'base64'),decode(a.cucomm,'base64'),decode(a.reptext,'base64') FROM managed_service_cinfo a, profiles_customer_role_mapping e WHERE a.cuid=e.cuid AND ( " + sor + " ) AND a.cuid=?";
         PreparedStatement ps = cn.prepareStatement(sqlSC);
         ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ResultSet rs = ps.executeQuery();
         
         String out = "{\"CUSTOMER\":[";
         while (rs.next()) { 
-            out += "{\"CUID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"CUADDR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(4) ) ) + "\",\"CUMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(5) ) ) + "\",\"CUESKMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(6) ) ) + "\",\"CUCOMM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(7) ) ) + "\"},";
+            out += "{\"CUID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"CUNR\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"CUNM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"CUADDR\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(4) ) ) + "\",\"CUMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(5) ) ) + "\",\"CUESKMAIL\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(6) ) ) + "\",\"CUCOMM\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(7) ) ) + "\"";
+            if (rs.getString(8) == null) {
+                out += ",\"REPTEXT\":\"\"},";
+            } else {
+                out += ",\"REPTEXT\":\"" + Base64Coder.encodeString( Basics.encodePdf( rs.getString(8) ) ) + "\"},";
+            }
         }
         out = out.substring(0, out.length()-1);
         out += "],\"CONTRACTS\":[";
@@ -1066,7 +1072,7 @@ public class Functions {
         return replace;
     }
     
-    static public Integer UpdateCustomer(String cuid, String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public Integer UpdateCustomer(String cuid, String cname, String cnumber, String cmail, String cesmail, String caddress, String ccomm, String ct1, String ct1an, String ct1pv, String ct1pi, String repcom) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
@@ -1079,14 +1085,15 @@ public class Functions {
          * Update Customer
          */
         
-        PreparedStatement ps = cn.prepareStatement("UPDATE managed_service_cinfo set CUNR=?, CUNM=?, CUADDR=?, CUMAIL=?, CUESKMAIL=?, CUCOMM=? WHERE CUID=?");
+        PreparedStatement ps = cn.prepareStatement("UPDATE managed_service_cinfo set CUNR=?, CUNM=?, CUADDR=?, CUMAIL=?, CUESKMAIL=?, CUCOMM=?, REPTEXT=? WHERE CUID=?");
         ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cnumber ) ));
         ps.setString(2,cname);
         ps.setString(3,caddress.replace("78", "+"));
         ps.setString(4,cmail);
         ps.setString(5,cesmail);
         ps.setString(6,ccomm.replace("78", "+"));
-        ps.setInt(7,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
+        ps.setString(7,repcom.replace("78", "+"));
+        ps.setInt(8,Integer.parseInt( Base64Coder.decodeString( cuid ) ));
         ps.executeUpdate();
         out++;
         
@@ -1180,7 +1187,7 @@ public class Functions {
         return replace;
     }
     
-    static public String CreateContractType(String cotrsn, String cotrln, String mactions) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String CreateContractType(String cotrsn, String cotrln, String mactions, String cotrcom) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
@@ -1203,10 +1210,11 @@ public class Functions {
          * Create Customer
          */
         
-        PreparedStatement ps = cn.prepareStatement("INSERT INTO class_contracttypes(COTRSN,COTRLN,MACTIONS) VALUES (?,?,?)");
+        PreparedStatement ps = cn.prepareStatement("INSERT INTO class_contracttypes(COTRSN,COTRLN,MACTIONS,REPTEXT) VALUES (?,?,?,?)");
         ps.setString(1,cotrsn);
         ps.setString(2,cotrln);
         ps.setString(3,mactions.replace("78", "+"));
+        ps.setString(4,cotrcom.replace("78", "+"));
         ps.executeUpdate();
         
         }
@@ -1227,13 +1235,19 @@ public class Functions {
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
         
-        PreparedStatement ps = cn.prepareStatement("SELECT cttyid,decode(cotrsn,'base64'),decode(cotrln,'base64'),decode(mactions,'base64') FROM class_contracttypes WHERE cttyid=?");
+        PreparedStatement ps = cn.prepareStatement("SELECT cttyid,decode(cotrsn,'base64'),decode(cotrln,'base64'),decode(mactions,'base64'),decode(reptext,'base64') FROM class_contracttypes WHERE cttyid=?");
         ps.setInt(1,Integer.parseInt( Base64Coder.decodeString( cttyid ) ));
         ResultSet rs = ps.executeQuery();
         
         String out = "{\"CONTRACT\":[";
         while (rs.next()) { 
-            out += "{\"CTTYID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"COTRSN\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"COTRLN\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"MACTIONS\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(4) ) ) + "\"},";
+            out += "{\"CTTYID\":\"" + Base64Coder.encodeString( rs.getString(1) ) + "\",\"COTRSN\":\"" + Base64Coder.encodeString( rs.getString(2) ) + "\",\"COTRLN\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(3) ) ) + "\",\"MACTIONS\":\"" + Base64Coder.encodeString( Basics.encodeHtml( rs.getString(4) ) ) + "\"";
+            if (rs.getString(5) == null) {
+                out += ",\"REPTEXT\":\"\"},";
+            } else {
+                out += ",\"REPTEXT\":\"" + Base64Coder.encodeString( Basics.encodePdf( rs.getString(5) ) ) + "\"},";
+            }
+            
         }
         out = out.substring(0, out.length()-1);
         out += "]}";
@@ -1286,7 +1300,7 @@ public class Functions {
         return replace;
     }
     
-    static public String UpdateContractType(String cttyid, String cotrsn, String cotrln, String mactions) throws FileNotFoundException, IOException, NamingException, SQLException {
+    static public String UpdateContractType(String cttyid, String cotrsn, String cotrln, String mactions, String cotrcom) throws FileNotFoundException, IOException, NamingException, SQLException {
         if (props == null) {
             props = Basics.getConfiguration();
         }
@@ -1295,10 +1309,11 @@ public class Functions {
         DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
         Connection cn = ds.getConnection(); 
         
-        PreparedStatement ps = cn.prepareStatement("UPDATE class_contracttypes set COTRLN=?, MACTIONS=? WHERE CTTYID=?");
+        PreparedStatement ps = cn.prepareStatement("UPDATE class_contracttypes set COTRLN=?, MACTIONS=?, REPTEXT=? WHERE CTTYID=?");
         ps.setString(1,cotrln.replace("78", "+"));
         ps.setString(2,mactions.replace("78", "+"));
-        ps.setInt(3,Integer.parseInt( Base64Coder.decodeString( cttyid ) ));
+        ps.setString(3,cotrcom.replace("78", "+"));
+        ps.setInt(4,Integer.parseInt( Base64Coder.decodeString( cttyid ) ));
         ps.executeUpdate();
         
         cn.close();

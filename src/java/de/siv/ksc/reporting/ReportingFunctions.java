@@ -26,6 +26,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import de.siv.ksc.modules.Base64Coder;
 import de.siv.ksc.modules.Basics;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -59,7 +60,6 @@ public class ReportingFunctions {
     private static Font infoHeadFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
     private static Font tableHeadFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
     private static Font tableContFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL);
-    private static String RESOURCE = "D:/Deckblatt.png";
     
     /**
      * Creates a PDF document.
@@ -80,7 +80,7 @@ public class ReportingFunctions {
         addMetaData(document, Cuid);
         addTitlePage(document, Cuid, Base64Coder.decodeString(From), Base64Coder.decodeString(To));
         addContent(document, Cuid, Base64Coder.decodeString(From), Base64Coder.decodeString(To));
-        addContact(document);
+        addContact(writer, document, Cuid);
         document.close();
     }
     
@@ -151,6 +151,19 @@ public class ReportingFunctions {
         
         /* Head Image */
         
+        /*
+         * Check if Windows
+         */
+        
+        String RESOURCE;
+    
+        File f = new File("C:/Windows");
+        if (f.isDirectory()) {
+            RESOURCE = "C:/app/oracle/Middleware/images/Deckblatt.png";
+        } else {
+            RESOURCE = "/u01/app/oracle/Middleware/images/Deckblatt.png";
+        }
+        
         Image img;
         try {
             img = Image.getInstance(RESOURCE);
@@ -179,6 +192,7 @@ public class ReportingFunctions {
         preface.add(headline);
         
         // Sub Headline
+        
         Paragraph subheadline = new Paragraph("Vom " + From + " bis " + To, subHeadFont);
         subheadline.setSpacingBefore(3);
         subheadline.setAlignment(Element.ALIGN_CENTER);
@@ -229,7 +243,8 @@ public class ReportingFunctions {
         Paragraph version = new Paragraph("Version:", notificationFont);
         version.setTabSettings(new TabSettings(56f));
         version.add(Chunk.TABBING);
-        version.add(new Chunk(time.toString()));
+        //version.add(new Chunk(time.toString()));
+        version.add(Long.toString(System.currentTimeMillis()));
         version.setAlignment(Element.ALIGN_LEFT);
         
         // Add version Line to Document
@@ -357,36 +372,96 @@ public class ReportingFunctions {
         }
     }
     
-    private static void addContact(Document document)
-        throws DocumentException, NamingException, SQLException {
+    private static void addContact(PdfWriter writer, Document document, String Cuid)
+        throws DocumentException, NamingException, SQLException, IOException {
         
-        Chapter chapterMaintenance = new Chapter(new Paragraph("Kontakt", infoFont), 2);
+        document.newPage();
+        Chapter chapterMaintenance = new Chapter(new Paragraph("Bemerkungen", infoFont), 2);
         
-        // Text
-        Paragraph text = new Paragraph(""
-                + "Sehr geehrter Wartungskunde,\n\n"
-                + "wir, das Wartungsteam der SIV.AG, arbeiten ständig daran die Qualität unserer "
-                + "Dienstleistungen zu verbessern. Dafür sind wir auch auf Ihre Hilfe angewiesen. Gefällt Ihnen "
-                + "unser neuer Wartungsbericht, welche Informationen würden sie sich noch wünschen? Gerne "
-                + "nehmen wir Ihre Anregungen und Kritiken entgegen.\n\n"
-                + "Nutzen und informieren Sie uns z.B.: über geplante Verbrauchsabrechnungen -> ein "
-                + "zusätzlicher Systemcheck (die berühmten Statistiken) kann nicht schaden. Auch für kritische "
-                + "Abrechnungsphasen können wir Ihnen über eine zusätzliche Bereitschaft zur Seite stehen, "
-                + "auch am Wochenende.\n\n"
-                + "Zur Zeit arbeiten wir daran unser Reporting und unsere Kommunikation zu Ihnen zu "
-                + "verbessern, der Eine oder Andere wird es schon an unseren neuen Servicemails bemerkt "
-                + "haben.\n\n"
-                + "Profitieren sie von unseren Erfahrungen bei der Planung ihrer zukünftigen kVASy-Infrastruktur."
-                + "", tableContFont);
-            text.setSpacingBefore(5);
-            text.setAlignment(Element.ALIGN_LEFT);
-            text.setIndentationLeft(25);
-            text.setIndentationRight(25);
-            text.setSpacingBefore(25);
-            text.setSpacingAfter(5);
+        /* Bemerkungen */
         
-        // Add Headline to Document
-        chapterMaintenance.add(text);
+        Context ctx = new InitialContext(); 
+        DataSource ds  = (DataSource) ctx.lookup("jdbc/repository"); 
+        Connection cn = ds.getConnection(); 
+        
+        String sqlGC = "SELECT DECODE(VALTEXT,'base64') FROM config_reporting WHERE KEY=encode('LastPageComment','base64')";
+        PreparedStatement ps = cn.prepareStatement(sqlGC);
+        ResultSet rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            
+            String str = Basics.encodePdf(rs.getString(1));
+            
+            Paragraph text = new Paragraph(str, tableContFont);
+                    text.setSpacingBefore(5);
+                    text.setAlignment(Element.ALIGN_LEFT);
+                    text.setIndentationLeft(25);
+                    text.setIndentationRight(25);
+                    text.setSpacingBefore(25);
+                    text.setSpacingAfter(5);
+
+                // Add Headline to Document
+                chapterMaintenance.add(text);
+                    
+        }
+        
+        cn.close();
+        
+        /* Contracts */
+        
+        Connection cnCo = ds.getConnection(); 
+        
+        String sqlGCCo = "select decode(b.reptext,'base64') from managed_service_ccontracts a,class_contracttypes b where a.cttyid=b.cttyid AND a.cuid=?";
+        PreparedStatement psCo = cnCo.prepareStatement(sqlGCCo);
+        psCo.setInt(1,Integer.parseInt( Cuid ));
+        ResultSet rsCo = psCo.executeQuery();
+        
+        while (rsCo.next()) {
+            
+            String str = Basics.encodePdf(rsCo.getString(1));
+            
+            Paragraph text = new Paragraph(str, tableContFont);
+                    text.setSpacingBefore(5);
+                    text.setAlignment(Element.ALIGN_LEFT);
+                    text.setIndentationLeft(25);
+                    text.setIndentationRight(25);
+                    text.setSpacingBefore(25);
+                    text.setSpacingAfter(5);
+
+                // Add Headline to Document
+                chapterMaintenance.add(text);
+                    
+        }
+        
+        cnCo.close();
+        
+        /* Customer */
+        
+        Connection cnCu = ds.getConnection(); 
+        
+        String sqlGCCu = "SELECT DECODE(REPTEXT,'base64') from managed_service_cinfo where cuid=?";
+        PreparedStatement psCu = cnCu.prepareStatement(sqlGCCu);
+        psCu.setInt(1,Integer.parseInt( Cuid ));
+        ResultSet rsCu = psCu.executeQuery();
+        
+        if (rsCu.next()) {
+            
+            String str = Basics.encodePdf(rsCu.getString(1));
+            
+            Paragraph text = new Paragraph(str, tableContFont);
+                    text.setSpacingBefore(5);
+                    text.setAlignment(Element.ALIGN_LEFT);
+                    text.setIndentationLeft(25);
+                    text.setIndentationRight(25);
+                    text.setSpacingBefore(25);
+                    text.setSpacingAfter(5);
+
+                // Add Headline to Document
+                chapterMaintenance.add(text);
+                    
+        }
+        
+        cnCu.close();
         
         // Contacts
         Paragraph text2 = new Paragraph("Ansprechpartner", infoHeadFont);
@@ -400,17 +475,30 @@ public class ReportingFunctions {
         // Add Headline to Document
         chapterMaintenance.add(text2);
         
-        // Contacts
-        Paragraph cont = new Paragraph("Application Management Service\nE-Mail: ora-maintenance@siv.de", tableContFont);
-            cont.setSpacingBefore(5);
-            cont.setAlignment(Element.ALIGN_LEFT);
-            cont.setIndentationLeft(50);
-            cont.setIndentationRight(25);
-            cont.setSpacingBefore(5);
-            cont.setSpacingAfter(5);
+        Connection cn2 = ds.getConnection(); 
         
-        // Add Headline to Document
-        chapterMaintenance.add(cont);
+        String sqlGC2 = "SELECT DECODE(VALTEXT,'base64') FROM config_reporting WHERE KEY=encode('LastPageContactsComment','base64')";
+        PreparedStatement ps2 = cn2.prepareStatement(sqlGC2);
+        ResultSet rs2 = ps2.executeQuery();
+        
+        if (rs2.next()) {
+            
+            String str = Basics.encodePdf(rs2.getString(1));
+            
+            Paragraph text = new Paragraph(str, tableContFont);
+                    text.setSpacingBefore(5);
+                    text.setAlignment(Element.ALIGN_LEFT);
+                    text.setIndentationLeft(50);
+                    text.setIndentationRight(25);
+                    text.setSpacingBefore(5);
+                    text.setSpacingAfter(5);
+
+                // Add Headline to Document
+                chapterMaintenance.add(text);
+                    
+        }
+        
+        cn.close();
         
         document.add(chapterMaintenance);
     }
