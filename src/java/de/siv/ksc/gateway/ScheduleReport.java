@@ -24,11 +24,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author sbaresel
  */
-public class UpdateConfigReporting extends HttpServlet {
+public class ScheduleReport extends HttpServlet {
     
     Properties props = null;
     
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String key, String val)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response, String uid, String cu, String fr, String to)
         throws ServletException, IOException, FileNotFoundException, ParseException {
 
         if (props == null) {
@@ -42,7 +42,7 @@ public class UpdateConfigReporting extends HttpServlet {
         boolean ctsSuccess = true;
         
         try {
-            Functions.UpdateConfigReporting(key,val);
+            Functions.ScheduleReport(uid,cu,fr,to);
             out.println("{\"ADD\":\"1\"}");
         } catch (NamingException ex) {
             ctsSuccess = false;
@@ -65,7 +65,7 @@ public class UpdateConfigReporting extends HttpServlet {
             throws ServletException, IOException, FileNotFoundException {
         String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
         try {
-            processRequest(request, response, uid, request.getParameter("key"), request.getParameter("val"));
+            processRequest(request, response, uid, request.getParameter("cu"), request.getParameter("fr"), request.getParameter("to"));
         } catch (ParseException ex) {
             Logger.getLogger(UpdateConfigReporting.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -76,7 +76,7 @@ public class UpdateConfigReporting extends HttpServlet {
             throws ServletException, IOException, FileNotFoundException {
         String uid = null; if (request.getParameter("user") == null) { uid = request.getRemoteUser(); } else { uid = request.getParameter("user"); }
         try {
-            processRequest(request, response, uid, request.getParameter("key"), request.getParameter("val"));
+            processRequest(request, response, uid, request.getParameter("cu"), request.getParameter("fr"), request.getParameter("to"));
         } catch (ParseException ex) {
             Logger.getLogger(UpdateConfigReporting.class.getName()).log(Level.SEVERE, null, ex);
         }

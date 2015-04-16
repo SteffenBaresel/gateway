@@ -26,8 +26,10 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import de.siv.ksc.modules.Base64Coder;
 import de.siv.ksc.modules.Basics;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.Connection;
@@ -67,7 +69,7 @@ public class ReportingFunctions {
      * @throws    DocumentExcepticaton 
      * @throws    IOException 
      */
-    public void createPdf(HttpServletResponse response, String Cuid, String From, String To)
+    public static void createPdf(HttpServletResponse response, String Cuid, String From, String To)
 	throws DocumentException, IOException, NamingException, SQLException, BadElementException, FileNotFoundException, ParseException {
         Document document = new Document(PageSize.A4, 36, 36, 54, 54);
         PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
@@ -78,10 +80,34 @@ public class ReportingFunctions {
         
         document.open();
         addMetaData(document, Cuid);
-        addTitlePage(document, Cuid, Base64Coder.decodeString(From), Base64Coder.decodeString(To));
-        addContent(document, Cuid, Base64Coder.decodeString(From), Base64Coder.decodeString(To));
+        addTitlePage(document, Cuid, Basics.InterpreteDate(Base64Coder.decodeString(From)), Basics.InterpreteDate(Base64Coder.decodeString(To)));
+        addContent(document, Cuid, Basics.InterpreteDate(Base64Coder.decodeString(From)), Basics.InterpreteDate(Base64Coder.decodeString(To)));
         addContact(writer, document, Cuid);
         document.close();
+    }
+    
+    /* From Report */
+    
+    public static void createPdfFile(String Cuid, String From, String To, String File)
+	throws DocumentException, IOException, NamingException, SQLException, BadElementException, FileNotFoundException, ParseException {
+        Document document = new Document(PageSize.A4, 36, 36, 54, 54);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfWriter writer = PdfWriter.getInstance(document, baos);
+        
+        HeaderFooter footer = new HeaderFooter();
+        writer.setBoxSize("art", new Rectangle(36, 54, 559, 788));
+        writer.setPageEvent(footer);
+        
+        document.open();
+        addMetaData(document, Cuid);
+        addTitlePage(document, Cuid, From, To);
+        addContent(document, Cuid, From, To);
+        addContact(writer, document, Cuid);
+        document.close();
+        
+        FileOutputStream fos = new FileOutputStream(File);
+        fos.write(baos.toByteArray());
+        fos.close();
     }
     
     /*
@@ -224,7 +250,7 @@ public class ReportingFunctions {
         // Add Sub Headline to Document
         preface.add(cuaddr);        
         
-        addEmptyLine(preface, 15);
+        addEmptyLine(preface, 12);
         
         // info Line
         Paragraph info = new Paragraph("Firma:", notificationFont);
@@ -271,6 +297,9 @@ public class ReportingFunctions {
         ResultSet rs3 = ps3.executeQuery();
         
         while (rs3.next()) { 
+            
+            if (rs3.getString(1) != null) {
+            
             Paragraph cw = new Paragraph(Basics.encodePdf(rs3.getString(1)), tableContFont);
             cw.setSpacingBefore(5);
             cw.setAlignment(Element.ALIGN_LEFT);
@@ -281,6 +310,9 @@ public class ReportingFunctions {
             
             // Add Sub Headline to Document
             subMaintenanceD.add(cw);
+            
+            }
+            
         }
         
         cn3.close();
@@ -329,11 +361,14 @@ public class ReportingFunctions {
         DataSource ds2  = (DataSource) ctx2.lookup("jdbc/repository"); 
         Connection cn2 = ds2.getConnection(); 
         
+        //String sqlGC22 = "select to_timestamp(b.utim),decode(b.comt,'base64') from managed_service_cinfo a, managed_service_cservices b where a.cuid = b.cuid and a.cuid=" + Cuid + " and b.utim>" + Basics.ReportLongConvertDate(From) + " and b.utim<" + Basics.ReportLongConvertDate(To) + " order by 1 desc";
+        //System.out.println(sqlGC22);
+        
         String sqlGC2 = "select to_timestamp(b.utim),decode(b.comt,'base64') from managed_service_cinfo a, managed_service_cservices b where a.cuid = b.cuid and a.cuid=? and b.utim>? and b.utim<? order by 1 desc";
         PreparedStatement ps2 = cn2.prepareStatement(sqlGC2);
         ps2.setInt(1,Integer.parseInt( Cuid ));
-        ps2.setLong(2, Basics.LongConvertDate(From));
-        ps2.setLong(3, Basics.LongConvertDate(To));
+        ps2.setLong(2, Basics.ReportLongConvertDate(From));
+        ps2.setLong(3, Basics.ReportLongConvertDate(To));
         ResultSet rs2 = ps2.executeQuery();
         
         while (rs2.next()) { 
@@ -390,6 +425,8 @@ public class ReportingFunctions {
         
         if (rs.next()) {
             
+            if (rs.getString(1) != null) {
+            
             String str = Basics.encodePdf(rs.getString(1));
             
             Paragraph text = new Paragraph(str, tableContFont);
@@ -402,7 +439,9 @@ public class ReportingFunctions {
 
                 // Add Headline to Document
                 chapterMaintenance.add(text);
-                    
+                
+            }   
+            
         }
         
         cn.close();
@@ -418,7 +457,8 @@ public class ReportingFunctions {
         
         while (rsCo.next()) {
             
-            String str = Basics.encodePdf(rsCo.getString(1));
+            if (rsCo.getString(1) != null) {
+                String str = Basics.encodePdf(rsCo.getString(1));
             
             Paragraph text = new Paragraph(str, tableContFont);
                     text.setSpacingBefore(5);
@@ -430,6 +470,8 @@ public class ReportingFunctions {
 
                 // Add Headline to Document
                 chapterMaintenance.add(text);
+            
+            }
                     
         }
         
@@ -446,6 +488,8 @@ public class ReportingFunctions {
         
         if (rsCu.next()) {
             
+            if (rsCu.getString(1) != null) {
+            
             String str = Basics.encodePdf(rsCu.getString(1));
             
             Paragraph text = new Paragraph(str, tableContFont);
@@ -458,22 +502,12 @@ public class ReportingFunctions {
 
                 // Add Headline to Document
                 chapterMaintenance.add(text);
+            
+            }
                     
         }
         
         cnCu.close();
-        
-        // Contacts
-        Paragraph text2 = new Paragraph("Ansprechpartner", infoHeadFont);
-            text2.setSpacingBefore(5);
-            text2.setAlignment(Element.ALIGN_LEFT);
-            text2.setIndentationLeft(25);
-            text2.setIndentationRight(25);
-            text2.setSpacingBefore(25);
-            text2.setSpacingAfter(5);
-        
-        // Add Headline to Document
-        chapterMaintenance.add(text2);
         
         Connection cn2 = ds.getConnection(); 
         
@@ -483,6 +517,20 @@ public class ReportingFunctions {
         
         if (rs2.next()) {
             
+            if (rs2.getString(1) != null) {
+            
+            // Contacts
+            Paragraph text2 = new Paragraph("Ansprechpartner", infoHeadFont);
+                text2.setSpacingBefore(5);
+                text2.setAlignment(Element.ALIGN_LEFT);
+                text2.setIndentationLeft(25);
+                text2.setIndentationRight(25);
+                text2.setSpacingBefore(25);
+                text2.setSpacingAfter(5);
+        
+            // Add Headline to Document
+            chapterMaintenance.add(text2);
+                
             String str = Basics.encodePdf(rs2.getString(1));
             
             Paragraph text = new Paragraph(str, tableContFont);
@@ -495,10 +543,11 @@ public class ReportingFunctions {
 
                 // Add Headline to Document
                 chapterMaintenance.add(text);
-                    
+            
+            }
         }
         
-        cn.close();
+        cn2.close();
         
         document.add(chapterMaintenance);
     }

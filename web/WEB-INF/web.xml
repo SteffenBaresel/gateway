@@ -35,12 +35,12 @@
             <role-name>Protected</role-name>
         </auth-constraint>
     </security-constraint>
-    <!--security-constraint>
+    <security-constraint>
         <web-resource-collection>
             <web-resource-name>Exclude from Security</web-resource-name>
-            <url-pattern>/monitoring/*</url-pattern>
+            <url-pattern>/efs/*</url-pattern>
         </web-resource-collection>
-    </security-constraint-->
+    </security-constraint>
     <security-role>
         <role-name>Protected</role-name>
     </security-role>
@@ -699,6 +699,38 @@
     <servlet-mapping>
         <servlet-name>GetLastPageContactsComment</servlet-name>
         <url-pattern>/reporting/GetLastPageContactsComment</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetCron</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.GetCron</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetCron</servlet-name>
+        <url-pattern>/reporting/GetCron</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ScheduleReport</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.ScheduleReport</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ScheduleReport</servlet-name>
+        <url-pattern>/reporting/ScheduleReport</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>Scheduler</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.Scheduler</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Scheduler</servlet-name>
+        <url-pattern>/efs/reporting/ScheduleDistributor</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>Creator</servlet-name>
+        <servlet-class>de.siv.ksc.gateway.Creator</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Creator</servlet-name>
+        <url-pattern>/efs/application/Creator</url-pattern>
     </servlet-mapping>
     <!--
             Welcome File & Datasource

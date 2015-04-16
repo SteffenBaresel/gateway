@@ -167,6 +167,23 @@
             <li><b>ServiceReport</b> - Create Service Report, require BASE64 values for parameter "from" and "to" URL: <a href="/gateway/reporting/ServiceReport?cuid=&from=&to=">/gateway/reporting/ServiceReport?cuid=&from=&to=</a></li>    
             <li><b>GetLastPageComment</b> - Get Last Page Comment in BASE64 URL: <a href="/gateway/reporting/GetLastPageComment">/gateway/reporting/GetLastPageComment</a></li>    
             <li><b>UpdateConfigReporting</b> - Update Config Reporting, require BASE64 values for parameter "key" and "val" URL: <a href="/gateway/reporting/UpdateConfigReporting?key=&val=">/gateway/reporting/UpdateConfigReporting?key=&val=</a></li>    
+            <li><b>GetCron</b> - Get Scheduler Configuration in BASE64 URL: <a href="/gateway/reporting/GetCron">/gateway/reporting/GetCron</a></li>    
+            <li><b>ScheduleReport</b> - Update Config Reporting from Report form, require BASE64 values for parameter "cu" and "fr" and "to" URL: <a href="/gateway/reporting/ScheduleReport?cu=&fr=&to=">/gateway/reporting/ScheduleReport?cu=&fr=&to=</a></li>    
+        </ul>
+        </font>
+        <br></br>
+        <hr>
+        <br></br>
+        <!--REPORTING:1.0.150408-->
+        Modul: <i><b>Excluded from Security</b></i><br>
+        Version: <i><b>1.0.150408</b></i><br>
+        Comments: -
+        <br></br>
+        Format: <i><b>JSON</b></i><br>
+        <font size=2>Query:<br>
+        <ul>
+            <li><b>ScheduleDistributor</b> - Execute Jobs via Webservice URL: <a href="/gateway/efs/reporting/ScheduleDistributor?request=">/gateway/efs/reporting/ScheduleDistributor?request=</a></li>
+            <li><b>Creator</b> - Create Entries in Application (Service Entries, Customer etc.) URL: <a href="/gateway/efs/application/Creator?request=">/gateway/efs/application/Creator?request=</a></li>    
         </ul>
         </font>
         <br></br>
